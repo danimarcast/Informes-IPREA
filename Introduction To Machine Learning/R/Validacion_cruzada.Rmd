@@ -1,0 +1,63 @@
+---
+title: "Validación Cruzada"
+author: "Andres Vergara"
+date: "6/2/2021"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Validación Cruzada
+
+Hasta ahora, hemos hablado sobre cómo *la ejecución de un modelo en el 100% de sus datos* podría generar un *resultado* que *no se generalice bien* a los nuevos datos entrantes. Esta fue nuestra motivación para *dividir los datos con los que comenzamos en un conjunto de entrenamiento*, que generalmente toma alrededor del 70% de los datos y un conjunto de prueba que comprende el resto. Corres el modelo en los datos de entrenamiento y luego utilice el conjunto de prueba para comprobar cuál es la salida del modelo en comparación con las respuestas que tienes a la mano.
+
+
+Sin embargo, *este proceso de entrenamiento y prueba de datos todavía es algo limitado*. En una capacidad, cuando está probando la salida del modelo contra los datos reservados, estas *viendo sólo el error para esa agrupación exacta de los datos de prueba*. En teoría, los datos de prueba deben ser representativos de todo el conjunto de datos como un todo, pero *en la práctica hay casos en los que eso podría no ser cierto*. Debería querer entrenar el modelo de tal manera que pueda estar *seguro de que el error es representativo* de todo el conjunto de datos, no solo del segmento específico que obtiene de la selección al azar que coloca en el conjunto de prueba.
+
+La *validación cruzada es una técnica estadística* mediante la cual toma todo su conjunto de datos, lo divide en una serie de pequeños segmentos de entrenamiento/ prueba, evalúe el error para cada segmento y luego promedia esos errores finales. *Este enfoque termina siendo una forma más precisa de evaluar si el modelo tiene problemas que podrían estar ocultos* en varias combinaciones de las partes de entrenamiento y prueba del conjunto de datos.
+
+De hecho, ya hemos realizado una forma de validación cruzada el sencillo 70/30 división entrenamiento/prueba que se hizo anteriormente en este capítulo se llama un simple tecnica de validación cruzada "Holdout". Sin embargo, existen muchas otras técnicas estadísticas de validación cruzada y con R teniendo su base en el diseño estadístico, puede modelar muchos tipos diferentes de validación cruzada.
+
+
+
+
+##K-fold Cross-Validation 
+
+En contraste con la validación cruzada de exclusión"Hold out", *una técnica mucho más utilizada es denominada validación cruzada k -fold*. Esto implica tomar el conjunto de datos y dividirlo en k trozos. Para cada uno de estos fragmentos, luego divide los datos en un *pequeño conjunto de datos de entrenamiento/prueba y luego evaluas el error de ese fragmento individual*. Después de que tengas todos los errores para todos los fragmentos, simplemente toma el *promedio*. La ventaja de este método es que luego puede ver el error en todos los aspectos de sus datos en lugar de solo pruebas en un subconjunto específico de él.
+
+```{r}
+knitr::include_graphics("/Users/aaver/OneDrive/Documentos/Maestria Estadistica/Trabajo de Grado/Versón 2/Semillero de Investigación/K-fold Cross-validation.png")
+```
+
+En R, puede usar la función Cut (convierte números a factor, divide el rango de x en intervalos y codifica los valores en x según el intervalo en el que caen. El intervalo más a la izquierda corresponde al nivel uno, el siguiente a la izquierda al nivel dos y así sucesivamente.) para dividir uniformemente los índices de un conjunto de datos dado por subconjuntos. Luego, simplemente recorre los pliegues aplicados de sus datos, haciendo la divisón entrenamiento/prueba para cada pliegue:
+
+```{r}
+set.seed(123) # Siembra semilla
+x <- rnorm(100, 2, 1) #Selección de valores aleatorios bajo una distribución normal(n,mean,sd)
+y = exp(x) + rnorm(5, 0, 2) # función exponencial al vector x
+data <- data.frame(x, y)
+head(data)
+data.shuffled <- data[sample(nrow(data)), ] #Se toma una muestra aleatoria simple sin reemplazo
+folds <- cut(seq(1, nrow(data)), breaks = 10, labels = FALSE) #crea las particiones 
+errors <- c(0) #Se crea la variable errors
+for (i in 1:10) {
+fold.indexes <- which(folds == i, arr.ind = TRUE)
+test.data <- data[fold.indexes, ]
+training.data <- data[-fold.indexes, ]
+train.linear <- lm(y ~ x, training.data)
+train.output <- predict(train.linear, test.data)
+errors <- c(errors, sqrt(sum(((train.output - test.data$y)^2/length(train.output))))) #Calculo del RMSE (Raiz del Error Cuadratico Medio)
+}
+
+```
+
+```{r}
+errors[2:11]
+```
+
+Anteriormente en este capítulo, analizamos cómo un ajuste de regresión lineal en datos de ejemplo nos dio una estimación de error alrededor de cinco. *El ejemplo anterior muestra que el error estimado puede variar en gran medida solo dentro de sus propios datos, dependiendo de cómo dividas los conjuntos de entrenamiento y prueba*. En este ejemplo, puedes ver las salidas de los valores RMSE para 10 cortes diferentes de los datos. Algunos errores llegan a 3.9, otros tan altos como 10.5. Entonces, al usar la validación cruzada, no solo puede ver que hay un alto grado de variabilidad en el RMSE de estos datos, pero puede mitigar eso tomando el promedio de esos valores para obtener un número final que sea más representativo del error en los datos en su conjunto.
