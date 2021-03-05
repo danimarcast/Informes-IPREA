@@ -1,5 +1,5 @@
 ---
-title: 'cap5:Redes neuronales'
+title: 'capítulo 5: Redes neuronales'
 author: "IPREA"
 date: "1 de marzo de 2021"
 output:
