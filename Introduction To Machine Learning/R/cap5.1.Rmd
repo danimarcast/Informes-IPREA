@@ -1,0 +1,470 @@
+---
+title: <span style="color:#3c55b3">5. Redes neuronales en pocas palabras</span>
+author: "IPREA"
+date: "1 de marzo de 2021"
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library("neuralnet")
+library("knitr")
+```
+
+En el Capítulo 2, se mencionó el tópico de redes neuronales en nuestra exploración del panorama del Machine Learning.
+
+Una red neuronal es un conjunto de ecuaciones que se usan para calcular un resultado. Estas ecuaciones no son muy aterradores sí las pensamos como un cerebro hecho de códigos de computadora. En algunos casos, esto está mas cerca a la realidad de lo que deberiamos esperar de un ejemplo tan sencillo. Dependiendo del número de caracteristicas que se tengan en los datos, la red neuronal puede ser una "caja negra". En principio, se pueden mostrar las ecuaciones que hacen a la red neuronal, pero en cierta medida, la cantidad de información se vuelve demasiado engorrosa para ser intuida fácilmente.
+
+Las redes neuronales son usadas ampliamente en las grandes industrias debido a su precisión. Algunas veces, hay que escoger un modelo bastante preciso pero con una velocidad de cálculos muy lenta. Por lo tanto, lo mejor es intentar varios modelos y usar redes neuronales solo si ellas trabajan bien para un conjunto de datos en particular.
+
+## <span style="color:#3c55b3">Redes neuronales de una sola capa</span>
+
+En el Capítulo 2, se observo el desarrollo de una puerta $AND$. Una puerta $AND$ tiene la siguiente lógica.
+
+```{r}
+x1 <- c(0, 0, 1, 1)
+x2 <- c(0, 1, 0, 1)
+logic <- data.frame(x1, x2)
+logic$AND <- as.numeric(x1 & x2)
+knitr::kable(logic)
+```
+Si se tienen dos entradas $1$ (ambas verdaderas), la salida es $1$ (verdadero). Además, si algunas de ellas, o ambas son $0$ (falso) la salida es tambien $0$ (falso). Estos calculos son similares en nuestro análisis de la regresión logística.
+
+En el Capítulo 4, se observo como la función sigmoide funciona. Recordemos que la función sigmoide esta dada por: 
+$g(z) = \frac{1}{1+e^{-z}}$
+
+Donde $z$ es una función de la forma $z = \theta_0 + \theta_1 x_1 + \theta_2 x_2$
+
+Para la puerta lógica, todo lo que se necesita es tomar y escoger los pesos $\theta_0,\theta_1,\theta_2$ para que cuando $x_1 = 1, x_2 = 1$ los resultados de $z$ cuando lo pases a través de la función sigmoide $g(z)$ sea también $1$. Previamente, se escogieron los pesos de $\theta_0 =20, \theta_1 = 15, \theta_2 = 17$ para satisfacer la ecuación. La manera en la que la red neuronal calcula estos pesos es un proceso con más matemáticas, pero sigue la misma lógica que se usó para la regresión logística.
+
+Las redes neuronales vienen de diferentes "sabores y colores", pero las más populares se derivan de las redes neuronales de una capa o multicapa. Hasta ahora, se observó un ejemplo de una red de una sola capa, para la que se tomó una entrada $(1,0)$, se procesó a través de la función sigmoidea y se obtuvo una salida $(0)$. Se puede, de hecho hacer una cadena de estos cálculos para formar modelos interconectados y complejos tomando la salida de uno y pasandolo a otras capas computacionales.
+
+```{r}
+set.seed(123)
+AND <- c(rep(0, 3), 1) #rep(0,3)=(000)
+print(AND)
+binary.data <- data.frame(expand.grid(c(0, 1), c(0, 1)), AND) #expand.grid todas las combinaciones de los vectores
+net <- neuralnet(AND ~ Var1 + Var2, binary.data, hidden = 0,
+err.fct = "ce", linear.output = FALSE)
+plot(net, rep = "best")
+```
+
+## <span style="color:#3c55b3">Construyendo una red neuronal simple usando R</span>
+
+Antes de comenzar con las matemáticas, vamos a desglosar la visualización presentada en la *Figura 5-1*, un diagrama de una red neuronal más sencilla que se puede hacer. Hay una capa de entrada (los círculos vacíos a la izquierda) y una capa de salida (el círculo vacío a la derecha). A menudo, hay otra capa verical de círculos que indica una capa de cálculos. En este caso, la capa de salida es la capa de cálculos. Los números en las líneas indican los mejores pesos (computacionalmente hablando) para usar en el modelo. El número que acompaña a el "$1$" en el círculo ubicado en la parte superior es el peso del *nodo de sesgo*. El nodo de sesgo no es más que la constante aditiva para la ahora familiar función sigmoide que se usó en los ejemplos de la regresión logística. Entonces, en cierto sentido, esto es sólo una forma diferente de representar un análisis de regresión logística en la forma más simple de una red neuronal. El resultado final es un esquema de clasificación para los datos que tienen etiquetas $1$ o $0$.
+
+En R, hay solo una librería de redes neuronales que fué tiene una funcionalidad para visualizar redes neuronales. En la practica, la mayoría del tiempo graficar redes neuronales is más complicado de lo que merece la pena, como se vera después. En escenarios de modelos complejos, los diagramas de redes neuronales y las matemáticas se vuelven muy engorrosas hasta el punto de que el modelo en sí mismo se vuelve una caja negra entrenada. Sí el gerente te pidiera que le expliques las matemáticas detras de un modelo de red neuronal compleja, puede que necesites de una tarde completa y el tablero más grande en el edificio.
+
+El código mostrado en la *Figura 5-1* muestra una tabla similar a los datos de `binary.data` en la función `neuralnet()` (función del paquete del mismo nombre). El resultado que se obtiene será una ecuación que tiene los pesos $\theta_0 = -11.86048, \theta_1 = 7.75382, \theta_2 = 7.75519$.
+
+Entonces, sí tu jefe quiere realmente saber el estado del proceso del modelo de  la red neuronal, podrás decir que el modelo está listo para funcionar. No obstante, si tu jefe te pide detalles de cómo funciona exactamente, puedes decirle que se toman dos entradas $Var1$ y $Var2$ y las introduce en la ecuación:
+
+$$z = -11.86048 + 7.75382 Var_1 + 7.75519 Var_2$$
+
+
+Entonces pasamos la ecuación a través de la función sigmoide $g(z) = \frac{1}{1+e^{-z}}$ y obtenemos la salida. Entonces, el proceso entero sera de la siguiente manera:
+
+$$AND = \frac{1}{1+ e^{-(-11.86048 + 7.75382 Var_1 + 7.75519 Var_2)}}$$
+
+Se puede verificar la salida de la función ``neuralnet()`` usando la función ``prediction()``
+
+```{r}
+prediction(net)
+```
+
+En la primera tabla están las variables de entrada y lo que la red neuronal piensa que es
+la respuesta. Como puede ver, las respuestas están bastante cerca de lo que deberían ser, que es lo que se muestra en la tabla de abajo. Hasta ahora, ha realizado con éxito una red neuronal con una sola capa. Es decir, todas las entradas pasaron por un solo punto de procesamiento.
+como se muestra en la Figura 5-1. Estos puntos de procesamiento son casi siempre funciones sigmoides, sin embargo, en algunos casos inusuales, se pueden pasar por la función tangente hiperbólica $\arctan(x)$, para conseguir un resultado similar.
+
+
+### Múltiples salidas de calculos
+
+Como se ha mencionado anteriormente, las redes neuronales pueden tomar multiples entradas y proporcionar multiples salidas. Por ejemplo, se tienen dos funciones que se desean modelar mediante redes neuronales, se pueden usar los operadores de formula en R `~` y el operador `+` para añadir otra respuesta al lado izquierdo de la ecuación durante el modelado, tal como se ve en la *Figura 5-2*
+
+```{r}
+set.seed(123)
+AND <- c(rep(0, 7), 1)
+OR <- c(0, rep(1, 7))
+binary.data <- data.frame(expand.grid(c(0, 1), c(0, 1), c(0,
+ 1)), AND, OR)
+net <- neuralnet(AND + OR ~ Var1 + Var2 + Var3, binary.data,
+ hidden = 0, err.fct = "ce", linear.output = FALSE)
+plot(net, rep = "best")
+```
+
+Se pueden modelar las funciones $AND$ y $OR$ con dos ecuaciones dadas por las salidas en la *Figura 5-2*
+\begin{align*}
+AND &= -18.4 + 7.2 \cdot Var_1 + 7.2 \cdot Var_2 + 7.1 \cdot Var_3 \\
+OR &= -9.53 + 22.5\cdot Var_1 + 21.2 \cdot Var_2 + 19.5 \cdot Var_3 
+\end{align*}
+
+Podemos observar que nuestra salida es similar como antes con una sola función:
+
+```{r}
+prediction(net)
+```
+
+La redes neuronales parecen funcionar bien.
+
+### Nodos ocultos de cálculos
+
+Hasta ahora se han construido redes neuronales que no tienen capas ocultas. Es decir, la capa de cálculo es la misma que la capa de salida. La Red Neuronal de la *Figura 5-3* se compone de una capa oculta y una capa de salida. Aquí, mostraremos cómo añadir una capa oculta de cálculos puede ayudar a incrementar la precisión del modelo.
+
+Las redes neuronales usan notaciones abreviadas para definir su arquitectura, en la que anotaremos el número de nodos de entrada, seguido de dos puntos, el número de nodos de cálculo en la capa oculta, otros dos puntos y luego el número de nodos de salida. La arquitectura de las redes neuronales que construimos en la *Figura 5-3* tendrían una notación de $3:1:1$
+
+La *Figura 5-3* tiene tres entradas, una capa oculta y una capa de salida para una arquitectura de red neuronal $3:1:1$.
+
+```{r}
+set.seed(123)
+AND <- c(rep(0, 7), 1)
+binary.data <- data.frame(expand.grid(c(0, 1), c(0, 1), c(0,
+ 1)), AND, OR)
+net <- neuralnet(AND ~ Var1 + Var2 + Var3, binary.data, hidden = 1,
+ err.fct = "ce", linear.output = FALSE)
+plot(net, rep = "best")
+```
+
+En este caso, se introdujo un paso de calculos antes de la salida. Caminando a través del diagrama de izquierda a derecha, hay tres entradas para una puerta lógica. Estos datos se introducen en la función de regresión logística en la capa oculta central. La ecuación resultante se canaliza a la capa de cálculos para que se utilice en nuestra función $AND$. Matemáticamente se ve de la siguiente manera:
+
+\begin{equation*}
+H_1 = 8.57 -3.5 \cdot Var_1 -3.5 \cdot Var_2 -3.6 \cdot Var_3
+\end{equation*}
+
+Que luego pasaremos a través de la función logística. Entonces:
+
+\begin{equation*}
+g(H_1) = \frac{1}{1+e^{-(8.57 - 3.5 \cdot Var_1 -3.5 \cdot Var_2 -3.6 \cdot Var_3)}}
+\end{equation*}
+
+Por lo tanto, tomamos la anterior salida y la evaluamos en otro nodo de regresión logística usando los pesos calculados en el nodo de salida:
+
+\begin{equation*}
+AND = g(5.72 - 13.79\cdot g(H_1))
+\end{equation*}
+
+Una de las mayores ventajas de usar una capa oculta con algun nodo oculto de cálculos es que hace la red neuronal más precisa. Además, entre más compleja se haga la red neuronal, será más lenta y más difícil de explicarla con ecuaciones intuitivas. Por otra parte, entre más capas ocultas de cálculos se tenga, se puede correr el riesgo de que se tenga un sobreajuste en el modelo, tal como se vio en los sistemas tradicionales de regresión.
+
+Aunque los números estan ligados a los pesos de cada nodo de cálculo como se ve en la Figura 5-4, estos se vuelven bastante ilegibles, lo más importante aquí es el error y el número de calculos. En este caso el error ha bajado de $0.033$ a $0.026$ desde el último modelo, pero además también se redujo el número de cálculos para obtener esa precisión de $143$ a $61$. Por lo tanto, no sólo ha aumentado la precisión, sino además ha hecho más rapido el cálculo del modelo. La figura 5-4 también muestra otro nodo de cálculo oculto añadido a la capa oculta única, justo antes de la capa de salida:
+
+```{r}
+#figura 5-4
+set.seed(123)
+net2 <- neuralnet(AND ~ Var1 + Var2 + Var3, binary.data, hidden = 2,
+ err.fct = "ce", linear.output = FALSE)
+plot(net2, rep = "best")
+```
+
+Matemáticamente, esto puede ser representado como dos ecuaciones de regresión logística que son introducidas en una ecuación de regresión logística final para obtener nuestra salida.
+
+\begin{align*}
+f_1 &= 13.64 + 13.97\cdot Var_1 + 14.9\cdot Var_2 + 14.27\cdot Var_3 \\
+f_2 &= -7.95 + 3.24\cdot Var_1 + 3.15\cdot Var_2 + 3.29\cdot Var_3 \\
+f_3 &= -5.83 - 1.94\cdot f_1 + 14.09\cdot f_2 \\
+AND &= \frac{1}{1-e^{-(-5.83 - 1.94\cdot f_1 + 14.09\cdot f_2)}}
+\end{align*}
+
+Las ecuaciones se vuelven cada vez más complicadas con cada aumento en el número de nodos informáticos ocultos. El error con dos nodos aumentó ligeramente de $0.29$ a $0.33$, pero el número de pasos de iteración que tomó el modelo para minimizar ese error fue un poco mejor, ya que bajó de $156$ a $143$. ¿Qué sucede si aumenta aún más el número de nodos de cálculo? Las figuras 5-5 y 5-6 ilustran esto.
+
+```{r}
+#figura 5-5 , 5-6
+set.seed(123)
+net4 <- neuralnet(AND ~ Var1 + Var2 + Var3, binary.data, hidden = 4,
+ err.fct = "ce", linear.output = FALSE)
+net8 <- neuralnet(AND ~ Var1 + Var2 + Var3, binary.data, hidden = 8,
+ err.fct = "ce", linear.output = FALSE)
+plot(net4, rep = "best")
+plot(net8, rep = "best")
+```
+
+El código de las Figuras 5-5 y 5-6 utiliza el mismo escenario de modelado de redes neuronales, pero el número de nodos de cálculo ocultos aumenta primero a cuatro y luego a ocho. La red neuronal con cuatro nodos de cálculo ocultos tuvo un mejor nivel de error (leve cambio) que la red con un solo nodo oculto. En ese caso, el error bajó de $0,029$ a $0,028$, pero el número de pasos se redujo drásticamente de $156$ a $61$. ¡Una gran mejora! Sin embargo, una red neuronal con ocho capas de cálculo ocultas podría haber cruzado un territorio de sobreajuste. En esa red, el error pasó de $0,029$ a $0,051$, aunque el número de pasos pasó de $156$ a $48$.
+
+También puede aplicar la misma metodología con múltiples resultados, aunque la trama en sí comienza a convertirse en un desastre ilegible en algún momento, como lo demuestra la Figura 5-7:
+
+```{r}
+#figura 5-7
+set.seed(123)
+net <- neuralnet(AND + OR ~ Var1 + Var2 + Var3, binary.data,
+ hidden = 6, err.fct = "ce", linear.output = FALSE)
+plot(net, rep = "best")
+```
+
+## <span style="color:#3c55b3">Redes neuronales con múltiples capas</span>
+
+Hasta ahora, todas las redes neuronales con las que hemos jugado han tenido una arquitectura que tiene una capa de entrada, una o cero capas ocultas (o capas de cómputo) y una capa de salida.
+
+Ya hemos utilizado redes neuronales $1:1:1$ o $1:0:1$ para algunos esquemas de clasificación. En esos ejemplos, estábamos tratando de modelar clasificaciones basadas en las funciones de puerta lógica $AND$ y $OR$:
+
+```{r}
+x1 <- c(0, 0, 1, 1)
+x2 <- c(0, 1, 0, 1)
+logic <- data.frame(x1, x2)
+logic$AND <- as.numeric(x1 & x2)
+logic$OR <- as.numeric(x1 | x2)
+knitr::kable(logic)
+```
+
+Como muestra la Figura 5-8, podemos representar esta tabla como dos gráficos, uno de los cuales evidencia los valores de entrada y los colorea de acuerdo con el tipo de salida de puerta lógica que usamos:
+
+```{r}
+#figura 5-8
+logic$AND <- as.numeric(x1 & x2) + 1
+logic$OR <- as.numeric(x1 | x2) + 1
+par(mfrow = c(2, 1))
+plot(x = logic$x1, y = logic$x2, pch = logic$AND, cex = 2,
+ main = "Simple Classification of Two Types",
+ xlab = "x", ylab = "y", xlim = c(-0.5, 1.5), ylim = c(-0.5,
+ 1.5))
+plot(x = logic$x1, y = logic$x2, pch = logic$OR, cex = 2,
+ main = "Simple Classification of Two Types",
+ xlab = "x", ylab = "y", xlim = c(-0.5, 1.5), ylim = c(-0.5,
+ 1.5))
+
+```
+Estos gráficos usan triángulos para indicar cuando las salidas son $1$ (VERDADERO), y círculos para los que las salidas son $0$ (FALSO). En nuestra discusión sobre regresión logística, básicamente estábamos encontrando algún tipo de línea que separara estos datos en puntos rojos en un lado y puntos negros en el otro. Recuerde que esta línea de separación se llama límite de decisión y siempre ha sido una línea recta. Sin embargo, no podemos usar una línea recta para intentar clasificar puertas lógicas más complicadas como $XOR$ o $XNOR$.
+
+En forma tabular, como hemos visto con las funciones $AND$ y $OR$, las funciones $XOR$ y $XNOR$ toman entradas de $x1$, $x2$ y nos dan una salida numérica de la misma manera, como se muestra en la Figura 5-9:
+
+```{r}
+x1 <- c(0, 0, 1, 1)
+x2 <- c(0, 1, 0, 1)
+logic <- data.frame(x1, x2)
+logic$AND <- as.numeric(x1 & x2)
+logic$OR <- as.numeric(x1 | x2)
+logic$XOR <- as.numeric(xor(x1, x2))
+logic$XNOR <- as.numeric(x1 == x2)
+knitr::kable(logic)
+```
+
+```{r}
+#figura 5-9
+logic$XOR <- as.numeric(xor(x1, x2)) + 1
+logic$XNOR <- as.numeric(x1 == x2) + 1
+par(mfrow = c(2, 1))
+plot(x = logic$x1, y = logic$x2, pch = logic$XOR, cex = 2, main = "Non-Linear
+Classification of Two Types",
+ xlab = "x", ylab = "y", xlim = c(-0.5, 1.5), ylim = c(-0.5,
+ 1.5))
+plot(x = logic$x1, y = logic$x2, pch = logic$XNOR, cex = 2, main = "Non-Linear
+Classification of Two Types",
+ xlab = "x", ylab = "y", xlim = c(-0.5, 1.5), ylim = c(-0.5,
+ 1.5))
+
+```
+
+No hay una sola línea recta que pueda separar los puntos rojos y negros en los gráficos de la Figura 5-9. Si intenta trazar una red neuronal muy simple sin capas ocultas para una clasificación $XOR$, los resultados no son especialmente gratificantes, como se ilustra en la Figura 5-10:
+
+```{r}
+logic$XOR <- as.numeric(xor(x1, x2))
+set.seed(123)
+net.xor <- neuralnet(XOR ~ x1 + x2, logic, hidden = 0, err.fct = "ce",
+ linear.output = FALSE)
+prediction(net.xor)
+```
+
+```{r}
+#figura 5-10
+plot(net.xor, rep = "best")
+```
+
+Intentar usar una red neuronal sin capas ocultas es un gran error. Al observar el resultado de la función de `prediction()`, puede ver que la red neuronal piensa que para un escenario dado, como $xor(0,0)$, la respuesta es $0.48$. Tener un error que es mucho más alto que el nivel de granularidad para el que está tratando de encontrar la respuesta indica que este no es el mejor método que puede usar.
+
+En lugar del enfoque tradicional de usar una o ninguna capa oculta, que proporciona un límite de decisión en línea recta, debe confiar en límites de decisión no lineales, o curvas, para separar clases de datos. Al agregar más capas ocultas a sus redes neuronales, agrega más límites de decisión de regresión logística como líneas rectas. A partir de estas líneas agregadas, puede dibujar un límite de decisión convexo que habilita la no linealidad. Para ello, debe confiar en una clase de redes neuronales llamadas perceptrones multicapa o MLP.
+
+Una forma "quick and dirty" (forma sencilla de solucionar un problema) de usar un MLP en este caso sería usar las entradas $x1$ y $x2$ para obtener las salidas de las funciones $AND$ y $OR$. Luego, puede alimentar esas salidas como entradas individuales en una red neuronal de una sola capa, como se ilustra en la Figura 5-11:
+
+```{r}
+set.seed(123)
+and.net <- neuralnet(AND ~ x1 + x2, logic, hidden = 2, err.fct = "ce",
+ linear.output = FALSE)
+and.result <- data.frame(prediction(and.net)$rep1)
+## Data Error: 0;
+or.net <- neuralnet(OR ~ x1 + x2, logic, hidden = 2, err.fct = "ce",
+ linear.output = FALSE)
+or.result <- data.frame(prediction(or.net)$rep1)
+## Data Error: 0;
+as.numeric(xor(round(and.result$AND), round(or.result$OR)))
+## [1] 0 1 1 0
+xor.data <- data.frame(and.result$AND, or.result$OR,
+as.numeric(xor(round(and.result$AND),
+ round(or.result$OR))))
+names(xor.data) <- c("AND", "OR", "XOR")
+xor.net <- neuralnet(XOR ~ AND + OR, data = xor.data, hidden = 0,
+ err.fct = "ce", linear.output = FALSE)
+prediction(xor.net)
+```
+
+```{r}
+#figura 5-11
+plot(xor.net, rep = "best")
+```
+
+Un MLP es exactamente lo que su nombre implica. Un perceptrón es un tipo particular de red neuronal que implica una forma específica de cómo calcula los pesos y los errores, conocida como red neuronal de retroalimentación. Al tomar ese principio y agregar múltiples capas ocultas, lo hacemos compatible con datos no lineales como el que estamos tratando en una puerta XOR.
+
+## <span style="color:#3c55b3">Redes neuronales para regresión</span>
+
+Hemos analizado algunos ejemplos exhaustivos que demuestran cómo se pueden usar redes neuronales para construir sistemas como puertas $AND$ y $OR$, cuyas salidas luego se pueden combinar para formar cosas como puertas $XOR$. Las redes neuronales son adecuadas para modelar funciones simples, pero cuando las encadena, a veces necesita confiar en fenómenos más complejos como MLP.
+
+Usted puede utilizar redes neuronales para problemas estandar de Machine Learning como regresion y clasificación. Para caminar suavemente a traves del uso de redes neuronales para regresion, demos un vistaso a la figura 5-12, en donde se representa un ejemplo simple con un caso familiar de regresion lineal, por tanto tenemos una buena base lineal de entendimiento. Por ejemplo, usemos el conjunto de datos `BostonHousinhg` de la libreria `mlbench`:
+
+```{r}
+library(mlbench)
+data(BostonHousing)
+lm.fit <- lm(medv ~ ., data = BostonHousing)
+lm.predict <- predict(lm.fit)
+plot(BostonHousing$medv, lm.predict, main = "Linear regression predictions vs
+actual",
+ xlab = "Actual", ylab = "Prediction")
+```
+
+Esto crea un modelo lineal de `medv`, la mediana de casas dueño-ocupado en miles de dolares. Luego, la funciíon `predict()` itera sobre todas las entradas del conjunto de datos usando el modelo que usted ya creó y almacena las predicciones. Las predicciones son graficadas versus el valor actual. En un caso ideal de un modelo perfecto, la grafica resultante va a ser una perfecta relación lineal de $y=x$.
+
+Entonces, como se compara la regresion de la red neuronal? la Figura 5-13 muestra como:
+
+```{r}
+library(nnet)
+nnet.fit1 <- nnet(medv ~ ., data = BostonHousing, size = 2)
+## # weights: 31
+## initial value 283985.903126
+## final value 277329.140000
+## converged
+nnet.predict1 <- predict(nnet.fit1)
+plot(BostonHousing$medv, nnet.predict1, main = "Neural network predictions vs
+actual",
+ xlab = "Actual", ylab = "Prediction")
+```
+
+Nota: Algo para tener en cuenta al cambiar de modelo es la necesidad de normalizar datos primero.
+
+De acuerdo con nuestro ajuste de red neuronal con dos nodos ocultos en una capa computacional oculta, el resultado es de hecho aun más terrible. Esto debe garantizar alguna investigación profunda. Démosle una mirada a la respuesta:
+
+```{r}
+summary(BostonHousing$medv)
+```
+
+El rango de la respuesta es de $5$ a $50$. Las redes neuronales no son muy buenas usando numeros que varian demasiado, usted necesita emplear una tecnica conocida como escala de característica. La escala de característica es la práctica de normalizar sus datos a valores entre $0$ y $1$, de forma que puede ajustarlos en un cierto modelo de machine learning para un resultado mucho más preciso. En este caso, usted quiere dividir su respuesta en $50$ para normalizar los datos:
+
+```{r}
+summary(BostonHousing$medv/50)
+```
+Ahora, usted tiene una respuesta que tiene un mínimo de $0.1$ y un máximo de $1$. Figura 5-14 muestra cómo esto afecta el modelo de redes neuronales:
+
+```{r}
+nnet.fit2 <- nnet(medv/50 ~ ., data = BostonHousing, size = 2,
+ maxit = 1000, trace = FALSE)
+nnet.predict2 <- predict(nnet.fit2) * 50
+plot(BostonHousing$medv, nnet.predict2, main = "Neural network predictions vs
+ actual with normalized response inputs",
+ xlab = "Actual", ylab = "Prediction")
+
+
+```
+
+Este es el resultado de un modelo de red neuronal con sus entradas normalizadas correctamente.
+
+Esta gráfica se ve un poco mejor que la anterior, pero es aún mejor para cuantificar la diferencia entre dos escenarios de modelado. Usted puede hacer esto al mirar el error cuadrático medio:
+
+```{r}
+mean((lm.predict - BostonHousing$medv)^2)
+mean((nnet.predict2 - BostonHousing$medv)^2)
+```
+
+El error total para el modelo lineal es alrededor de $22$, mientras que el error total del ejemplo de regresión hecho con una red neuronal ha mejorado al rededor de $16$.
+
+Alternativamente, usted puede utilizar la poderosa herramienta de R `caret` para ajustar mejor su modelo. Cuando se invoca `caret`, usted puede pasar algunos parámetros de ajuste y técnicas de muestreo para obtener una mejor estimación del error y resultados más precisos, como se muestra aquí:
+
+```{r}
+library(caret)
+mygrid <- expand.grid(.decay = c(0.5, 0.1), .size = c(4, 5, 6))
+nnetfit <- train(medv/50 ~ ., data = BostonHousing, method = "nnet",
+ maxit = 1000, tuneGrid = mygrid, trace = F)
+print(nnetfit)
+
+```
+
+La mejor estimación de error de este caso es de tamaño $6$, lo que significa $6$ nodos en una capa oculta de la red, y una caida del parámetro de $0.1$. La raíz del error cuadrático medio (RMSE) da el mismo error que ha visto anteriormente, pero tomando la raíz cuadrada de el. Entonces, para comparar con los resultados vistos anteriormente, el mejor error aquí es como sigue:
+
+```{r}
+0.08168503^2
+
+```
+Una mejora notable con respecto a la raiz del error cuadrático medio de $16$ que vimos anteriormente.
+
+## <span style="color:#3c55b3">Redes neuronales para clasificación</span>
+
+En cierto sentido, hemos demostrado el uso de las redes neuronales para la clasificación a través de las puertas $AND$ y $OR$ que construimos al principio del capitulo. Estas funciones toman algún tipo de entradas binarias y nos da un resultado binario a traves de funciones de activación de regresión logística en cada nodo computacional de la red neuronal.
+
+En este caso, usted necesita separar sus datos en conjuntos de entrenamiento y conjuntos de prueba, que es bastante sencillo. El entrenamiento de la red neuronal con los datos de entrenamiento tambien tiene sentido a partir de nuestras experiencias pasadas con el enfoque de entrenamiento/prueba para el aprendizaje automático. La diferencia aquí es que cuando llamas a la función `predict()`, lo hace con la opción `type=class`. Esto ayuda cuando se trata de datos de algúna clase en lugar de datos numéricos, este último usaría regresión.
+
+
+```{r}
+iris.df <- iris
+smp_size <- floor(0.75 * nrow(iris.df))
+set.seed(123)
+train_ind <- sample(seq_len(nrow(iris.df)), size = smp_size)
+train <- iris.df[train_ind, ]
+test <- iris.df[-train_ind, ]
+iris.nnet <- nnet(Species ~ ., data = train, size = 4, decay = 0.0001,
+ maxit = 500, trace = FALSE)
+predictions <- predict(iris.nnet, test[, 1:4], type = "class")
+knitr::kable(table(predictions, test$Species))
+
+```
+
+Puede ver que la matriz de confusión proporciona un resultado bastante bueno para la clasificación mediante redes neuronales. Piense en el Capítulo 2 y en el ejemplo que usa `Kmeans` para la agrupación en clústeres multiclase; no tenemos casos aquí que estén mal etiquetados en comparación con los dos casos mal etiquetados que vimos anteriormente.
+
+## <span style="color:#3c55b3">Redes neuronales con caret</span>
+
+El paquete de machine learning en R, `caret`, ofrece una agrupación de herramientas muy flexible para utilizar en estos procedimientos de apredizaje automático. En el caso de las redes neuronales, hay más de 15 para elegir, cada una con sus propias ventajas y desventajas. Si nos quedamos con nuestro ejemplo de `nnet` por el momento, podemos ejecutar un modelo en forma de intercalación invocando la función `train()` y pasándole la opción `method='nnet'`. Entonces podemos seguir con nuestros pasos de predicción normales. El poder de la intercalación proviene de la facilidad con la que podemos seleccionar un método diferente con el que comparar los resultados.
+
+### Regresión
+
+En el caso de la regresión, el resultado que busca será numérico. Entonces, para comparar los resultados entre modelos, debe buscar el RMSE y luego ver cuál tiene el más bajo, lo que indica que este modelo es el más preciso. Para este ejemplo, usemos el conjunto de datos `Prestige` del paquete `car`. Este conjunto de datos contiene una serie de características relacionadas con las ocupaciones y el prestigio ocupacional percibido con algunas características como la educación, los ingresos y qué porcentaje de los ocupantes en esa profesión son mujeres. Para este ejemplo de regresión, intentará predecir los ingresos en función del prestigio y la educación:
+
+```{r}
+library(car)
+library(caret)
+trainIndex <- createDataPartition(Prestige$income, p = 0.7, list = F)
+prestige.train <- Prestige[trainIndex, ]
+prestige.test <- Prestige[-trainIndex, ]
+my.grid <- expand.grid(.decay = c(0.5, 0.1), .size = c(5, 6,
+ 7))
+prestige.fit <- train(income ~ prestige + education, data = prestige.train,
+ method = "nnet", maxit = 1000, tuneGrid = my.grid, trace = F,
+ linout = 1)
+prestige.predict <- predict(prestige.fit, newdata = prestige.test)
+summary(prestige.test$income)
+sqrt(mean((prestige.predict - prestige.test$income)^2))
+```
+De acuerdo con el resultado, el rango de ingresos en el conjunto de datos va desde $611$ dólares canadienses hasta $25,879$. El error de $3,658$ dólares canadienses es alto, pero puede probar con otros tipos de redes neuronales para ver cómo se comparan con el método `nnet`:
+
+```{r}
+prestige.fit <- train(income ~ prestige + education, data = prestige.train,
+ method = "neuralnet")
+prestige.predict <- predict(prestige.fit, newdata = prestige.test)
+sqrt(mean((prestige.predict - prestige.test$income)^2))
+```
+
+El resultado de este método es $5,067.804$. Esa es una mejora con respecto al método `nnet`, pero la velocidad a la que se ejecuta este cálculo es mucho más lenta. Aquí es donde debe confiar en el ajuste de sus objetos de entrenamiento para extraer el rendimiento óptimo de cada método diferente que elija.
+
+### Clasificación 
+
+La clasificación con `caret` funciona de manera similar según el método que esté utilizando. Puede utilizar la mayoría de los métodos de intercalación para la clasificación o la regresión, pero algunos son específicos de uno frente a otro. El único método para clasificación explicita de `caret` es `multinom`, mientras que los métodos `neuralnet`, `brnn`, `qrnn` y `mlpSGD` son solo de regresión explícita. Puede usar el resto para clasificación o regresión:
+
+```{r}
+library("e1071")
+iris.caret <- train(Species ~ ., data = train, method = "nnet",
+ trace = FALSE)
+predictions <- predict(iris.caret, test[, 1:4])
+knitr::kable(table(predictions, test$Species))
+```
+El resultado final aquí es el mismo que antes en términos de precisión del modelo, pero la flexibilidad de `caret` le permite volver a probar con otros métodos con bastante facilidad:
+
+```{r}
+iris.caret.m <- train(Species ~ ., data = train, method = "multinom",
+ trace = FALSE)
+predictions.m <- predict(iris.caret.m, test[, 1:4])
+knitr::kable(table(predictions.m, test$Species))
+```
+¡Es bueno saber que hay otros métodos que también son bastante precisos!
+
