@@ -20,7 +20,7 @@ Las redes neuronales son usadas ampliamente en las grandes industrias debido a s
 
 ## <span style="color:#3c55b3">Redes neuronales de una sola capa</span>
 
-En el Capítulo 2, se observo el desarrollo de una puerta $AND$. Una puerta $AND$ tiene la siguiente lógica.
+En el Capítulo 2, se observó el desarrollo de una puerta $AND$. Una puerta $AND$ tiene la siguiente lógica.
 
 ```{r}
 x1 <- c(0, 0, 1, 1)
