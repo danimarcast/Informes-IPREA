@@ -9,7 +9,8 @@ knitr::opts_chunk$set(echo = TRUE)
 library("neuralnet")
 library("knitr")
 ```
-
+<div style="text-align: justify">
+ 
 En el Capítulo 2, se mencionó el tópico de redes neuronales en nuestra exploración del panorama del Machine Learning.
 
 Una red neuronal es un conjunto de ecuaciones que se usan para calcular un resultado. Estas ecuaciones no son muy aterradores sí las pensamos como un cerebro hecho de códigos de computadora. En algunos casos, esto está mas cerca a la realidad de lo que deberiamos esperar de un ejemplo tan sencillo. Dependiendo del número de caracteristicas que se tengan en los datos, la red neuronal puede ser una "caja negra". En principio, se pueden mostrar las ecuaciones que hacen a la red neuronal, pero en cierta medida, la cantidad de información se vuelve demasiado engorrosa para ser intuida fácilmente.
