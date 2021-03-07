@@ -161,7 +161,7 @@ Matemáticamente, esto puede ser representado como dos ecuaciones de regresión 
 H_1 &= 13.64 + 13.97\cdot Var_1 + 14.9\cdot Var_2 + 14.27\cdot Var_3 \\ 
 H_2 &= -7.95 + 3.24\cdot Var_1 + 3.15\cdot Var_2 + 3.29\cdot Var_3 \\
 H_3 &= -5.83 - 1.94\cdot g(H_1) + 14.09\cdot g(H_2) \\
-AND &= h(H_3)
+AND &= g(H_3)
 \end{align*}
 
 Las ecuaciones se vuelven cada vez más complicadas con cada aumento en el número de nodos informáticos ocultos. El error con dos nodos aumentó ligeramente de $0.29$ a $0.33$, pero el número de pasos de iteración que tomó el modelo para minimizar ese error fue un poco mejor, ya que bajó de $156$ a $143$. ¿Qué sucede si aumenta aún más el número de nodos de cálculo? Las figuras 5-5 y 5-6 ilustran esto.
@@ -278,13 +278,13 @@ set.seed(123)
 and.net <- neuralnet(AND ~ x1 + x2, logic, hidden = 2, err.fct = "ce",
  linear.output = FALSE)
 and.result <- data.frame(prediction(and.net)$rep1)
-## Data Error: 0;
+
 or.net <- neuralnet(OR ~ x1 + x2, logic, hidden = 2, err.fct = "ce",
  linear.output = FALSE)
 or.result <- data.frame(prediction(or.net)$rep1)
-## Data Error: 0;
+
 as.numeric(xor(round(and.result$AND), round(or.result$OR)))
-## [1] 0 1 1 0
+
 xor.data <- data.frame(and.result$AND, or.result$OR,
 as.numeric(xor(round(and.result$AND),
  round(or.result$OR))))
