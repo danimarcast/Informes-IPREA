@@ -95,8 +95,8 @@ plot(net, rep = "best")
 
 Se pueden modelar las funciones $AND$ y $OR$ con dos ecuaciones dadas por las salidas en la *Figura 5-2*
 \begin{align*}
-AND &= -18.4 + 7.2 \cdot Var_1 + 7.2 \cdot Var_2 + 7.1 \cdot Var_3 \\
-OR &= -9.53 + 22.5\cdot Var_1 + 21.2 \cdot Var_2 + 19.5 \cdot Var_3 
+AND &=g( -18.4 + 7.2 \cdot Var_1 + 7.2 \cdot Var_2 + 7.1 \cdot Var_3) \\
+OR &=g( -9.53 + 22.5\cdot Var_1 + 21.2 \cdot Var_2 + 19.5 \cdot Var_3 )
 \end{align*}
 
 Podemos observar que nuestra salida es similar como antes con una sola función:
@@ -158,10 +158,10 @@ plot(net2, rep = "best")
 Matemáticamente, esto puede ser representado como dos ecuaciones de regresión logística que son introducidas en una ecuación de regresión logística final para obtener nuestra salida.
 
 \begin{align*}
-f_1 &= 13.64 + 13.97\cdot Var_1 + 14.9\cdot Var_2 + 14.27\cdot Var_3 \\
-f_2 &= -7.95 + 3.24\cdot Var_1 + 3.15\cdot Var_2 + 3.29\cdot Var_3 \\
-f_3 &= -5.83 - 1.94\cdot f_1 + 14.09\cdot f_2 \\
-AND &= \frac{1}{1-e^{-(-5.83 - 1.94\cdot f_1 + 14.09\cdot f_2)}}
+H_1 &= 13.64 + 13.97\cdot Var_1 + 14.9\cdot Var_2 + 14.27\cdot Var_3 \\ 
+H_2 &= -7.95 + 3.24\cdot Var_1 + 3.15\cdot Var_2 + 3.29\cdot Var_3 \\
+H_3 &= -5.83 - 1.94\cdot g(H_1) + 14.09\cdot g(H_2) \\
+AND &= h(H_3)
 \end{align*}
 
 Las ecuaciones se vuelven cada vez más complicadas con cada aumento en el número de nodos informáticos ocultos. El error con dos nodos aumentó ligeramente de $0.29$ a $0.33$, pero el número de pasos de iteración que tomó el modelo para minimizar ese error fue un poco mejor, ya que bajó de $156$ a $143$. ¿Qué sucede si aumenta aún más el número de nodos de cálculo? Las figuras 5-5 y 5-6 ilustran esto.
