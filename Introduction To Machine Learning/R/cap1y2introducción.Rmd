@@ -1,7 +1,5 @@
 ---
-title: "Introducción al aprendizaje automático en R"
-author: "Jorge Alexander Fajardo Muñoz"
-date: "Diciembre de 2020"
+title: <span style="color:#3c55b3">1. ¿Qué es un modelo?</span>
 output: rmarkdown::github_document:
   
 ---
@@ -9,10 +7,8 @@ output: rmarkdown::github_document:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+<div style="text-align: justify">
 
-## ¿Qué es un modelo?
-
-### Introducción
 
 Un modelo es cualquier tipo de función que tenga poder predictivo.
 La siguiente gráfica, muestra la distribución de la eficiencia de combustible del vehículo basada en el conjunto de datos integrado de mtcars
@@ -34,7 +30,7 @@ Veamos mas a detalle esta información.
 knitr:: kable(head(mtcars))
 ```
 
-Con esto, podemos hacer un análisis de cual es la relación entre la eficencia de cada carro en cuanto a combustible con cada una de nuestras columnas. Es importante mencionar el significado de cada una de estas columnas.
+Con esto, podemos hacer un análisis de cual es la relación entre la eficiencia de cada carro en cuanto a combustible con cada una de nuestras columnas. Es importante mencionar el significado de cada una de estas columnas.
 
 ```{r, echo=FALSE}
 categorias <- c("mpg", "cyl", "disp", "hp", "drat", "wt", "qsec", "vs", "am", "gear", "carb")
@@ -85,7 +81,7 @@ Sin embargo, pueden haber errores en los datos u observación, con lo cual tenem
 Para muchos este modelo puede resultar familiar, de hecho es un modelo muy famoso cuyo nombre es regresión lineal, que para sorpresa de muchas personas, es un modelo de Machine learning.
 
 
-### Algoritmos, modelos y su diferencia
+## <span style="color:#3c55b3">Algoritmos, modelos y su diferencia</span>
 
 El aprendizaje automático (machine learning) tiene una fuerte relación con los algoritmos, por tanto es tan difícil intentar separar uno del otro. Pero, ¿Qué es un algoritmo?, *Un algoritmo es un conjunto de pasos realizados en orden.* Muchas veces al escuchar la palabra algoritmo se nos viene a la cabeza un proceso muy complicado o complejo, no es lo mismo el algoritmo que usamos para ponernos un par de zapatos, que el algoritmo para hacer un modelo de machine learning, es por eso que conforme se avanza en este texto, se darán herramientas para poder explicar el funcionamiento interno de los modelos de aprendizaje automático más utilizados en R al ayudar a simplificar sus procesos algorítmicos.
 
@@ -97,7 +93,7 @@ La función que se usará para una regresión lineal simple en R es `lm(y ~ x)`,
 
 Finalmente, es importante aclarar que uno puede buscar el funcionamiento interno de un modelo usando el archivo ayuda `?(lm)`, de donde podrá obtener una gran cantidad de información sobre como la función trabaja con las entradas y lo que produce.
 
-### Sobre la terminología 
+## <span style="color:#3c55b3">Sobre la terminología</span>
 
 Vamos a definir ciertos aspectos importantes
 
@@ -110,9 +106,9 @@ knitr::kable(tabla2_df)
 ```
 
 
-No está de más mencionar que hay casos en los que las funciones no necesariamente producen resultados matemáticos, por ejemplo si tenemos una cantidad de datos de forma incorrecta, los datos se podrían "limpiar" mediante una función. Dicho proceso podría modelarse usando un diagrama de flujo en lugar de una ecuación.
+No está de más mencionar que hay casos en los que las funciones no necesariamente producen resultados matemáticos, por ejemplo si tenemos una cantidad de datos con errores de tipeo, los datos se podrían "limpiar" mediante una función. Dicho proceso podría modelarse usando un diagrama de flujo en lugar de una ecuación.
 
-### Modelando limitaciones
+## <span style="color:#3c55b3">Modelando limitaciones</span>
 
 Todos los modelos, ya sean matemáticos, computacionales o de otro tipo, están limitados por
 el mismo cerebro humano que los diseña.El estadístico George Box es citado a menudo por la advertencia: "Todos los modelos son incorrectos, pero
@@ -126,28 +122,24 @@ Es importante tener en cuenta el error que tiene cada modelo, por ejemplo en el 
 
 Como conclusión, el poder de un modelo viene dado por su utilidad, muchas veces esto viene dado por su poder de predicción.
 
-### Estadística y computación en el modelado
+## <span style="color:#3c55b3">Estadística y computación en el modelado</span>
 
 El aprendizaje automático tiene su base en matemáticas y estadística, de hecho todos los cálculos se pueden hacer usando solo matemáticas. Sin embargo como se ha mencionado anteriormente dichos cálculos se pueden volver complicados e insostenibles dependiendo del algoritmo, incluso llegando a tener modelos de regresión lineal simple bastante complejos. Por fortuna, los diferentes lenguajes de programación modernos tienen muchas funciones y paquetes que con tan solo unas lineas de código solucionen los problemas en cueestión de segundos, como por ejemplo, la función `lm()` de R que ya vimos anteriormente.
 
-Es importante estudiar las matemáticas detrás de cada algoritmo y tener los conocimientos estadísticos para entender el funcionamiento interno de un algoritmo de aprendizaje automático, esto para una mejor compresión de cada algoritmo y modelo. De esta forma va a ser menos abrumador el enfoque en el código de R. La siguiente es una lista general de conceptos estadísticos importantes que definen la presición del modelo.
+Es importante estudiar las matemáticas detrás de cada algoritmo y tener los conocimientos estadísticos para entender el funcionamiento interno de un algoritmo de aprendizaje automático, esto para una mejor compresión de cada algoritmo y modelo. De esta forma va a ser menos abrumador el enfoque en el código de R. La siguiente es una lista general de conceptos estadísticos importantes que definen la precisión del modelo.
 
-```{r, echo = FALSE}
-terminos <- c("Coeficiente de determinación","p-valores","intervalo de confianza") 
-defin <- c("A veces aparece como R-cuadrado, esto es lo bien que se ajustan los datos a la línea modelada para análisis de regresión.","
-Estas son medidas de validez estadística, donde si su valor p está por debajo de 0.05, es probable que el valor que está examinando sea estadísticamente válido.","
-Estos son dos valores entre los que esperamos que esté un parámetro. Por ejemplo, un intervalo de confianza del 95% entre los números 1 y 3 podría describir dónde cae el número 2.")
-tabla3_df <- data.frame(terminos, defin)
-knitr::kable(tabla3_df)
+***Coeficiente de determinación***\
+A veces aparece como R-cuadrado, esto es lo bien que se ajustan los datos a la línea modelada para análisis de regresión.
 
-```
+***p-valores***\
+Estas son medidas de relevancia estadística, donde si su p-valor está por debajo de $0.05$, es probable que el valor que está examinando sea estadísticamente relevante.
 
+***intervalo de confianza***\
+Estos son dos valores entre los que esperamos que esté un parámetro. Por ejemplo, un intervalo de confianza del $95%$ entre los números $1$ y $3$ podría describir dónde cae el número $2$.
 
-Estos conceptos podemos usarlos para comprender la diferencia entre un modelo que se ajusta bien a los datos
-y uno que encaja mal. Podemos evaluar qué funciones son útiles para que las usemos en nuestro
-modelo y podemos determinar la precisión de las respuestas producidas por el modelo. Hay diferentes técnicas de optimización que son una base importante de muchos modelos diferentes que ayudan en obtener unos resultados mas precisos, por ejemplo, como el método de descenso por gradiente.
+Estos conceptos podemos usarlos para comprender la diferencia entre un modelo que se ajusta bien a los datos y uno que encaja mal. Podemos evaluar qué funciones son útiles para que las usemos en nuestro modelo y podemos determinar la precisión de las respuestas producidas por el modelo. Hay diferentes técnicas de optimización que son una base importante de muchos modelos diferentes que ayudan en obtener unos resultados mas precisos, por ejemplo, como el método de descenso por gradiente.
 
-### Datos de entrenamiento (Data training)
+## <span style="color:#3c55b3">Datos de entrenamiento (Data training)</span>
 
 Un método estadístico importante y que se toca con detalle es el de datos de entrenamiento. Todo modelo de aprendizaje automático requiere primero que se estudie un modelo de datos, ¿Pero qué es esto exactamente?.
 Digamos que tenemos un modelo para el cual tenemos alguna entrada que pasa por un algoritmo que genera una salida. Tenemos datos para los que queremos una predicción, así que los pasamos a través del modelo y obtenemos un resultado. Luego evaluamos los resultados y vemos si los errores asociados en el modelo disminuyen o no. Si lo hacen, estamos ajustando el modelo en la dirección correcta, de lo contrario, si los errores continúan acumulándose, debemos ajustar nuestro modelo más lejos. El conjunto de datos usado para enseñar al modelo cómo ser mas preciso para tener mejores predicciones es lo que llamamos Datos de entrenamiento.
@@ -156,7 +148,7 @@ Los métodos para dividir los datos con fines de capacitación y prueba se conoc
 Estas técnicas pueden tener muchas variantes, como tomar las 40 filas de datos superiores como
 conjunto de entrenamiento, tomando filas aleatorias de nuestros datos o técnicas más avanzadas.
 
-### Validación cruzada (Cross-validation)
+## <span style="color:#3c55b3">Validación cruzada (Cross-validation)</span> 
 
 La validación cruzada es algo así como otro mini-paso de la división en el entrenamiento y los conjuntos de prueba y la ejecución del modelo, pero sólo en los datos de entrenamiento.
 Por ejemplo, tomamos un conjunto de datos de 50 puntos y usamos el 80% como conjunto de entrenamiento, dejando el resto para su fase de prueba final. Nos quedan 40 filas con las que entrenar su modelo de datos. Podemos dividir estas 40 filas más en un conjunto de entrenamiento de 32 filas y una de 8 filas de la prueba. Al hacerlo y al pasar por un entrenamiento y un procedimiento de prueba similar, podemos
@@ -174,11 +166,11 @@ Algunas de las técnicas de validación cruzada incluidas en R son:
  * Adaptive cross-validation
  * Adaptive bootstrap cross-validation
  
-### ¿Por qué usar R?
+## <span style="color:#3c55b3">¿Por qué usar R?</span>
  
 R es un lenguaje programación de código abierto gratuito que tiene su legado en el mundo de la estadística, nació como una reimplementación de software libre del lenguaje S y es uno de los lenguajes mas usados en investigación científica. Sin embargo nos hacemos las siguientes preguntas, ¿por qué usar R en primer lugar? Hay tantos lenguajes de programación para elegir, ¿cómo saber cuál es el mejor para lo que se quiere lograr?
 
-### Lo bueno
+## <span style="color:#3c55b3">Lo bueno</span>
 
 La popularidad de R ha crecido exponencialmente en los últimos años. La web está llena de información, tutoriales y cursos en los cuales se puede aprender dicho lenguaje, de hecho, el paquete `swirl` nos enseña a usar R desde la misma consola. Además, R tiene grandes herramientas para la accesibilidad y reproducción de trabajo, distintos paquetes, entre ellos `shiny`, permiten crear aplicaciones web interactivas
 que pueden ser utilizados por no expertos para interactuar con conjuntos de datos complejos sin la necesidad de conocer o incluso instalar R.
@@ -191,7 +183,7 @@ El entorno de desarrollo integrado más popular es sin duda R studio
 El libro en el que nos estamos basando está hecho en R Markdown, un lenguaje ligero que puede convertir a todo tipo de formas para mostrar en la web o renderizar en archivos PDF. Es una excelente manera de compartir código mediante la publicación en la web o para redactar documentación profesional. 
 Algunos paquetes importantes de R y que es importante mencionar son `dplyr` para manipular datos de una manera intuitiva y `lubridate` que es una forma poderosa de realizar manipulaciones en formato de fecha y hora complicados datos.
 
-### R y el aprendizaje automático
+### <span style="color:#3c55b3">R y el aprendizaje automático</span>
 
 Aunque R tiene gran variedad de paquetes de aprendizaje automático, la lista de modelos reales de aprendizaje automático es mucho mayor. Se usa R en el libro porque el aprendizaje automático está basado en estadística y R se adapta bien para ilustrar esas relaciones. Además los paquetes en su mayoría son robustos y fáciles de usar, además R está muy bien desarrollado para las tareas relacionadas con la ciencia de datos.
 
@@ -201,30 +193,30 @@ $y=f(x_1,x_2,x_3,...)$ mientras que en R se vería como  `y ~ x_1 + x_2 + x_3`. 
 
 
 
-### Lo malo
+## <span style="color:#3c55b3">Lo malo</span>
 
 Sin embargo R tiene ciertos inconvenientes. Muchos algoritmos de su ecosistema son proporcionados por la
 comunidad u otros terceros, por lo que puede haber alguna inconsistencia entre ellos y otras herramientas. Además muchos paquetes tienen cierto grado de antig\ddot{u}edad lo cual no nos permite saber a que modelo se puede aplicar dicho paquete. También es posible que deba usar un paquete con el que está menos familiarizado y dejar atrás uno favorito,y algunos de estos casos no familiares son innecesariamente complejos y pueden simplificarse en gran medida.
 
 Finalmente, la forma en que R opera desde un punto de vista programático puede impulsar a algunos desarrolladores profesionales a tomar ciertos malos hábitos ya que R es muy laxo en ciertos aspectos, por ejemplo en la programación orientada a objetos donde se tienen ciertos límites y restricciones respecto a cantidades específicas de memoria que se asignan. 
 
-## Aprendizaje automático supervisado y no supervisado
+# <span style="color:#3c55b3">2. Aprendizaje automático supervisado y no supervisado</span>
 
 En el mundo de los algoritmos de aprendizaje automático hay dos tipos, supervisado y no supervisado. Los modelos de aprendizaje supervisado son aquellos en los que un modelo de aprendizaje automático se ajusta con algún tipo de cantidad conocida. La mayoría de los algoritmos de aprendizaje automático son supervisados.
 Por otro lado los modelos de aprendizaje no supervisado son aquellos en los que el modelo de aprendizaje automático deriva patrones e información a partir de los datos mientras se determina el parámetro de ajuste de cantidad conocida. Estos son más raras en la práctica, pero igualmente son muy útiles.
 
-### Modelos supervisados
+## <span style="color:#3c55b3">Modelos supervisados</span>
 
 Los siguientes son los tipos de modelos supervisados:
 
-* Regresión
-    + Se usan principalmente para ver cómo evolucionan los datos con respecto a otra variable (por ejemplo, el tiempo) y examinando lo que se puede hacer para predecir valores en el futuro.
-* Clasificación
-    + Estos modelos se utilizan para organizar los datos en esquemas que tienen sentido categórico.
-* Mixto
-    + Estos modelos a menudo pueden basarse en partes de la regresión para informar cómo hacer la clasificación, o a veces lo contrario.
+***Regresión***\
+Se usan principalmente para ver cómo evolucionan los datos con respecto a otra variable (por ejemplo, el tiempo) y examinando lo que se puede hacer para predecir valores en el futuro.
+***Clasificación***\
+Estos modelos se utilizan para organizar los datos en esquemas que tienen sentido categórico.
+***Mixto***\
+Estos modelos a menudo pueden basarse en partes de la regresión para informar cómo hacer la clasificación, o a veces lo contrario.
     
-### Regresión
+## <span style="color:#3c55b3">Regresión</span>
 
 En su núcleo, una línea de regresión es para ajustarnos a los datos que tienen un elemento x y un elemento y. Luego usamos una ecuación para predecir la salida correspondiente y, que debe existir para cualquier entrada dada, x. Esto es siempre se hace con datos numéricos. Veamos el siguiente ejemplo de un problema de regresión. 
 
@@ -249,12 +241,12 @@ coef(model)
 ```
 
 Podríamos recordar que el modelo de regresión es de la forma $y = mx + b$, donde la salida es
-determinada a partir de una pendiente dada m,una intersección b y datos x. El modelo lineal en
+determinada a partir de una pendiente dada $m$,una intersección $b$ y datos $x$. El modelo lineal en
 este caso viene dado por los coeficientes que se acaban de calcular, por lo que el modelo se ve así:
 
-Fuel Efficiency = –0.041 × Engine Size + 29.599
+$\text{Fuel Efficiency} = –0.041 × \text{Engine Size} + 29.599$
 
-Con esto ya tenemos un modelo simple de aprendizaje automático, con lo cual podremos ingresar el tamaño de motor de cualquier auto y saber su eficencia, por ejemplo si tomamos un auto cuyo tamaño de motor es 200 obtenemos lo siguiente:
+Con esto ya tenemos un modelo simple de aprendizaje automático, con lo cual podremos ingresar el tamaño de motor de cualquier auto y saber su eficencia, por ejemplo si tomamos un auto cuyo tamaño de motor es $200$ obtenemos lo siguiente:
 
 ```{r}
 -0.041 * 200 + 29.599
@@ -268,10 +260,9 @@ directamente, esto es :
 coef(model)[2] * 200 + coef(model)[1]
 ```
 
-Sin embargo, si quisieramos diferentes enfoques de modelilzación podríamos hacerlo, por ejemplo, probar diferentes funciones para ajustar a los datos, porque si intentamos ajustar un motor teórico
-de 50.000 pulgadas cúbicas, la eficiencia del combustible se vuelve negativa!. Estos modelos de regresión en R serán estudiados más adelante.
+Sin embargo, si quisieramos diferentes enfoques de modelilzación podríamos hacerlo, por ejemplo, probar diferentes funciones para ajustar a los datos, porque si intentamos ajustar un motor teórico de $50.000$ pulgadas cúbicas, la eficiencia del combustible se vuelve negativa!. Estos modelos de regresión en R serán estudiados más adelante.
 
-### Datos de entrenamiento y prueba
+## <span style="color:#3c55b3">Datos de entrenamiento y prueba</span>
 
 Es importante estudiar el concepto de datos de entrenamiento y prueba, anteriormente obtuvimos un modelo con el cual podemos tener ciertas predicciones (regresión lineal), sin embargo no sabemos con certeza la precisión del modelo. Una de los métodos para mirar esta precisión es el de mirar el valor R-cuadrado del modelo:
 
@@ -301,15 +292,15 @@ test$output <- predict(model2, new.data)
 sqrt(sum(test$mpg - test$output)^2/nrow(test))
 ```
 
-Recapitulemos estos pasos para calcular el error. Si fueramos a mirar el error estándar residual tendríamos un valor de 3.521. Sin embargo estos valores son dudosos ya que se calculó con los mismos datos que se usaron para calcular el modelo. Para arreglar eso dividimos los datos de mtcars en un conjunto de entrenamiento que usamos exclusivamente para hacer el modelo de regresión y un conjunto de prueba justamente para probar.Primero, calculamos un nuevo modelo lineal sobre los datos de entrenamiento usando lm (). A continuación, formamos un marco de datos a partir de la columna disp de nuestros datos de prueba. Después de eso, hacemos predicciones en nuestro conjunto de prueba y las almacenamos en una nueva columna en nuestros datos de prueba. 
+Recapitulemos estos pasos para calcular el error. Si fueramos a mirar el error estándar residual tendríamos un valor de $3.521$. Sin embargo estos valores son dudosos ya que se calculó con los mismos datos que se usaron para calcular el modelo. Para arreglar eso dividimos los datos de mtcars en un conjunto de entrenamiento que usamos exclusivamente para hacer el modelo de regresión y un conjunto de prueba justamente para probar.Primero, calculamos un nuevo modelo lineal sobre los datos de entrenamiento usando `lm()`. A continuación, formamos un marco de datos a partir de la columna disp de nuestros datos de prueba. Después de eso, hacemos predicciones en nuestro conjunto de prueba y las almacenamos en una nueva columna en nuestros datos de prueba. 
 
 Finalmente, calculamos un término de error de raíz cuadrada (RMSE). Hacemos esto tomando la diferencia entre la salida de nuestro modelo y la eficiencia de mpg conocida, elevándola al cuadrado, sumando esos cuadrados y dividiendo por el número total de entradas en el conjunto de datos. Esto nos da el valor del error estándar residual. El nuevo valor es diferente de lo que hemos visto antes y es un valor importante para comprender qué tan bien está funcionando nuestro modelo.
 
-### Clasificación
+## <span style="color:#3c55b3">Clasificación</span>
 
 El método de clasificación es menos común que el de regresión, en los ejercicios de este método vamos a predecir valores discretos.
 
-### Regresión logística
+### <span style="color:#3c55b3">Regresión logística </span>
 
 En contraste con la regresión, se desea ver si unos puntos de datos es una categoria de algo no necesariamente númerico, veamos el siguiente ejemplo.
 
@@ -347,16 +338,14 @@ data.frame(row.names(test), test$mpg, test$am, Lab)
 
 Primero establecemos la etiqueta y los datos seleccionando la columna que representaban cada una. Obtuvimos estos del conjunto de datos de entrenamiento que dividimos antes. Luego los pasamos a la función LogitBoost e hicimos una predicción similar a como lo hicimos con un análisis de regresión lineal.
 
-Aquí, tenemos la eficiencia del motor dada en millas por galón (mpg) y un valor conocido si el automóvil es de transmisión automática (1) o no (0). Tenemos dos columnas, X0 y X1, que son probabilidades que genera el modelo si el coche es de transmisión automática (X0) o una transmisión manual (X1).
+Aquí, tenemos la eficiencia del motor dada en millas por galón (mpg) y un valor conocido si el automóvil es de transmisión automática $(1)$ o no $(0)$. Tenemos dos columnas, $X0$ y $X1$, que son probabilidades que genera el modelo si el coche es de transmisión automática $(X0)$ o una transmisión manual $(X1)$.
 
 Algunas maneras de modificar este modelo para ser más preciso podría ser incluir la recopilación de más datos en el conjunto de datos de entrenamiento, o ajustar las opciones disponibles en la propia función LogitBoost.
 
-### Metodos supervisados de Clustering
+### <span style="color:#3c55b3">Métodos supervisados de clustering</span>
 
 La agrupación en clústeres es cuando se tiene un conjunto de datos y se desea definir clases en función de que tan estrechamente están agrupados. Aunque estas agrupaciones no siempre se ven inmediatamente, así que un algoritmo de clustering nos puede ayudar a encontrar patrones que de otra forma hubiera sido difícil de ver. 
-
 Este es un ecosistema de algoritmos que puede ser usado en casos supervisados y no supervisados. Uno de los modelos de clustering mas populares es el algoritmo kmeans.
-
 Examinemos el conjunto de datos del iris observando el gráfico del ancho del pétalo como una función de
 longitud del pétalo.
 
@@ -395,7 +384,7 @@ Podemos ver ahora que el conjunto mas grande de datos se ha dividido en dos grup
 
 Si cada punto de datos en el conjunto fuera su propio grupo, terminaría sin sentido en lo que respecta a la clasificación. Aquí es donde se necesita usar la intuición para determinar el nivel apropiado de ajuste a los datos.
 
-Cuando hay muy pocos clusters y los datos están underfit (infrajuste), no hay una buena manera de determinar la estructura. Mientras que cuando hay demasiados clusters se tienen los problemas opuestos, es decir, hay demasiada estructura para darle sentido simplemente.
+Cuando hay muy pocos clusters y los datos están underfit (subajuste), no hay una buena manera de determinar la estructura. Mientras que cuando hay demasiados clusters se tienen los problemas opuestos, es decir, hay demasiada estructura para darle sentido simplemente.
 
 Continuando con el tema del aprendizaje supervisado, echemos un vistazo a la siguiente figura y
 comparemos este resultado con la respuesta real y veamos qué tan buena es realmente nuestra predicción:
@@ -415,14 +404,14 @@ La figura ilustra cómo funciona el algoritmo kmeans de tres clústeres frente a
 ```{r}
 knitr:: kable(table(iris.kmeans3$cluster, iris$Species))
 ```
- En dicha matríz, las columnas serán los resultados del modelo, mientras que las filas son los resultados reales
+En dicha matríz, las columnas serán los resultados del modelo, mientras que las filas son los resultados reales
 
-### Métodos mixtos
+## <span style="color:#3c55b3">Métodos mixtos</span>
 
 Una tercera clase de algoritmos es la mixta, la cual combina los modelos de regresión y clasificación.
 Algunos de estos métodos pueden utilizar la regresión para ayudar a informar un esquema de clasificación, o los datos pueden tomarse primero como etiquetas y usarse para restringir los modelos de regresión.
 
-### Modelos basados en árboles
+### <span style="color:#3c55b3">Modelos basados en árboles</span>
 
 En pocas palabras, un árbol es un estructura que tiene nodos y aristas. Para un árbol de decisiones, en cada nodo podríamos tener un valor el cual dividimos para obtener una idea de los datos. La siguiente figura ilustra este hecho.
 
@@ -432,19 +421,18 @@ tree <- ctree(mpg ~ ., data = mtcars)
 plot(tree)
 ```
 
-Este es un ejemplo de un árbol de decisión simple aplicado al conjunto de datos mtcars.
-La figura muestra un árbol de inferencia condicional. Estamos dibujando la eficiencia de combustible (mpg), pero usamos todas las funciones del conjunto de datos para crear el modelo en lugar de solo uno; por lo tanto el mpg ~. llamado en la función ctree (). 
+Este es un ejemplo de un árbol de decisión simple aplicado al conjunto de datos `mtcars`.
+La figura muestra un árbol de inferencia condicional. Estamos dibujando la eficiencia de combustible (mpg), pero usamos todas las funciones del conjunto de datos para crear el modelo en lugar de solo uno; por lo tanto el `mpg ~.` usado en la función `ctree()`. 
 
-La salida es una distribución (en forma de diagrama de caja y bigotes) de la eficiencia del combustible como función de las principales características que influyen en él. La función ctree llama a ciertos métodos para
-resolver estos; de esta manera, no tienes un montón de ramas en el árbol obstruyan la vista.
+La salida es una distribución (en forma de diagrama de caja y bigotes) de la eficiencia del combustible como función de las principales características que influyen en él. La función `ctree` llama a ciertos métodos para resolver estos; de esta manera, no tienes un montón de ramas en el árbol obstruyan la vista.
 
 
-En este caso, las funciones más importantes para mpg son disp (la cilindrada del motor) y wt (el peso del automóvil). Este cuadro se lee de arriba a abajo. En el nodo 1, hay una división para los automóviles que pesan menos de 2,32 toneladas y los que pesan más. Para los autos que pesan más, dividimos aún más la cilindrada del motor.
+En este caso, las funciones más importantes para `mpg` son disp (la cilindrada del motor) y wt (el peso del automóvil). Este cuadro se lee de arriba a abajo. En el nodo 1, hay una división para los automóviles que pesan menos de 2,32 toneladas y los que pesan más. Para los autos que pesan más, dividimos aún más la cilindrada del motor.
 
 
 Para los desplazamientos del motor que tienen un volumen inferior a 258 pulgadas cúbicas, vamos al nodo 4. 
 Para los desplazamientos del motor que tienen más de 258 pulgadas cúbicas, vamos al nodo 5. Observe que para cada característica hay un valor p estadístico, que determina cuán estadísticamente relevante es. 
-Cuanto más cercano esté el valor p a 0,05 o más, menos útil o relevante es. En este caso, un valor p de casi exactamente 0 es muy bueno. Asimismo, puedes ver cuántos puntos de datos componen cada clase en la parte inferior del árbol.
+Cuanto más cercano esté el p-valor a 0,05 o más, menos útil o relevante es. En este caso, un p-valor de casi exactamente 0 es muy bueno. Asimismo, puedes ver cuántos puntos de datos componen cada clase en la parte inferior del árbol.
 
 Consideremos un automóvil que tiene un peso de cuatro toneladas y un tamaño de motor pequeño de 100 cúbicos
 pulgadas. En el nodo 1, vamos por la ruta de la derecha hasta el nodo 3 (porque el peso es
@@ -471,13 +459,13 @@ Este fragmento de código hace tanto una regresión como una prueba de clasifica
 
 Podemos concluir que no es necesario mucho trabajo para algunos algoritmos para proporcionar tanto una salida numérica continua (regresión) como una salida de clase (clasificación) para los mismos datos de entrada.
 
-### Bosques aleatorios (Random forest)
+### <span style="color:#3c55b3">Bosques aleatorios (Random forest) </span>
 
 Si aplicamos de manera iterativa el algoritmo que crea árboles de decisión con diferentes parámetros sobre los mismos datos, obtenemos lo que denominamos un bosque aleatorio de decisión (random forest). Este algoritmo es uno de los métodos más eficientes de predicción y más usados hoy día para big data, pues promedia muchos modelos con ruido e imparciales reduciendo la variabilidad final del conjunto.
 
 En realidad lo que se hace es construir diferentes conjuntos de entrenamiento y de test sobre los mismos datos, lo que genera diferentes árboles de decisión sobre los mismos datos, la unión de estos árboles de diferentes complejidades y con datos de origen distinto aunque del mismo conjunto resulta un bosque aleatorio, cuya principal característica es que crea modelos más robustos de los que se obtendrían creando un solo árbol de decisión complejo sobre los mismos datos.
 
-Los bosques aleatorios no son tan fáciles de describir en forma de modelo con una simple ecuación o un árbol simple con algunos nodos. Podemos hacer el entrenamiento habitual y prueba de datos continuos y discretos como ha visto con el método ctree (), para ver la diferencia, hagamos lo siguiente:
+Los bosques aleatorios no son tan fáciles de describir en forma de modelo con una simple ecuación o un árbol simple con algunos nodos. Podemos hacer el entrenamiento habitual y prueba de datos continuos y discretos como ha visto con el método `ctree()`, para ver la diferencia, hagamos lo siguiente:
 
 ```{r}
 library(randomForest)
@@ -486,17 +474,15 @@ keep.forest = FALSE, importance = FALSE)
 plot(mtcars.rf, log = "y")
 ```
 
-Los algoritmos de bosque aleatorio son mucho más difíciles de mostrar en una visualización;
-Sin embargo, podemos mostrar fácilmente cómo evoluciona el error en el modelo según la cantidad de árboles que introducimos en el modelo.
+Los algoritmos de bosque aleatorio son mucho más difíciles de mostrar en una visualización; Sin embargo, podemos mostrar fácilmente cómo evoluciona el error en el modelo según la cantidad de árboles que introducimos en el modelo.
 
-La figura anterior muestra la restricción del error en un algoritmo de bosque aleatorio con 1,000
-árboles utilizados. Puede ver que el error disminuye con más árboles que uso, y es mínimo alrededor del área de n = 500 árboles.
+La figura anterior muestra la restricción del error en un algoritmo de bosque aleatorio con 1,000 árboles utilizados. Puede ver que el error disminuye con más árboles que uso, y es mínimo alrededor del área de $n = 500$ árboles.
 
-### Redes neuronales
+### <span style="color:#3c55b3">Redes neuronales</span>
 
 Una red neuronal, como su nombre lo indica, toma su forma computacional de la forma en que funcionan las neuronas en un sistema biológico. En esencia, para una lista dada de entradas, una red neuronal realiza una serie de pasos de procesamiento antes de devolver una salida. La complejidad en las redes neuronales viene en cuántos de los pasos de procesamiento hay y cuán complejo puede ser cada paso en particular.
 
-Un ejemplo de como puede funcionar una red neuronal es usando puertas lógicas. Usamos funciones lógicas amenudo en programación, como repaso, una función AND solo es cierta si ambas entradas lo son, si alguna o ambas son falsas, el resultado es falso.
+Un ejemplo de como puede funcionar una red neuronal es usando puertas lógicas. Usamos funciones lógicas amenudo en programación, como repaso, una función $AND$ solo es cierta si ambas entradas lo son, si alguna o ambas son falsas, el resultado es falso.
 
 ```{r}
 TRUE & TRUE
@@ -504,23 +490,22 @@ TRUE & FALSE
 FALSE & FALSE
 ```
 
-Podemos definir una red neuronal simple como una que toma dos entradas, calcula la
-función AND y nos da un resultado. Esto puede representarse por medio de una figura donde tenemos capas y nodos. Las capas son secciones verticales de lo visual y los nodos son los puntos de cálculo dentro de cada capa.
+Podemos definir una red neuronal simple como una que toma dos entradas, calcula la función $AND$ y nos da un resultado. Esto puede representarse por medio de una figura donde tenemos capas y nodos. Las capas son secciones verticales de lo visual y los nodos son los puntos de cálculo dentro de cada capa.
 
 Las matemáticas de esto requieren uso de una variable de sesgo, que es solo una constante que agregamos a la ecuación para propósitos de cálculo y es representada como su propio nodo, generalmente en la parte superior de cada capa en la red neuronal.
 
 
-En el caso de la función AND, usaremos valores numéricos que pasamos por una función de clasificación para dar un valor de 1 para VERDADERO y 0 para FALSO. Podemos hacer esto usando el función sigmoidea:
+En el caso de la función $AND$, usaremos valores numéricos que pasamos por una función de clasificación para dar un valor de $1$ para VERDADERO y $0$ para FALSO. Podemos hacer esto usando el función sigmoide:
 
 $f(x)=\dfrac{1}{1+e^{-x}}$
 
-Entonces para valores negativos menores que $-5$, la función es 0. Para valores positivos $x$ mayores que 5, la función es $1$. Si tuviéramos un conjunto predefinido de pesos para cada nodo en la red neuronal, podríamos tener una imagen que se parece a la siguiente Figura.
+Entonces para valores negativos menores que $-5$, la función es $0$. Para valores positivos $x$ mayores que $5$, la función es $1$. Si tuviéramos un conjunto predefinido de pesos para cada nodo en la red neuronal, podríamos tener una imagen que se parece a la siguiente Figura.
 
-Comenzamos con las entradas X1, X2 y el nodo de polarización que es solo una constante aditiva. Calculamos todos estos en el círculo vacío, esto es un nodo de cálculo. El cálculo que realizamos es poner todas estas cosas en una función de activación, que casi siempre es una función sigmoidea. La salida de la función sigmoidea es la resultado de la red neuronal.
+Comenzamos con las entradas $X1$, $X2$ y el nodo de polarización que es solo una constante aditiva. Calculamos todos estos en el círculo vacío, esto es un nodo de cálculo. El cálculo que realizamos es poner todas estas cosas en una función de activación, que casi siempre es una función sigmoide. La salida de la función sigmoide es la resultado de la red neuronal.
 
 ![](C:\Users\jafaj\OneDrive\Escritorio\R\red.png)
 
-Para calcular el resultado de una puerta AND $(f(x))$, necesitamos tomar entradas para $x_1$ y $x_2$. Definimos 1 para verdadero y 0 para falso. La última entrada será la variable de sesgo, que será 1 en este caso simple. Cuando la red esté terminada, encontraremos pesos que están atados a cada entrada. Luego construimos una ecuación usando esos pesos y averiguamos cuál es el resultado de esa ecuación, este resultado lo pasamos por una función sigmoidea (círculo vacío) y obtenemos la respuesta del otro lado.
+Para calcular el resultado de una puerta $AND$ $(f(x))$, necesitamos tomar entradas para $x_1$ y $x_2$. Definimos 1 para verdadero y 0 para falso. La última entrada será la variable de sesgo, que será 1 en este caso simple. Cuando la red esté terminada, encontraremos pesos que están atados a cada entrada. Luego construimos una ecuación usando esos pesos y averiguamos cuál es el resultado de esa ecuación, este resultado lo pasamos por una función sigmoidea (círculo vacío) y obtenemos la respuesta del otro lado.
 
 Matemáticamente tenemos lo siguiente: $–20 + 15 * x1 + 17 * x2$, con lo cual, si $x_1$ es verdadero obtendremos un 1, de lo contrario será 0. Luego resolvemos la ecuación y pasamos el valor final a través del sigmoide. Repetimos esto para todas las combinaciones de nuestras variables de entrada:
 
@@ -542,21 +527,21 @@ h x = f (− 3) ≈ 0$
 $x_1 = 0, x_2 = 0\\
 h(x) = f(− 20) ≈ 0$
 
-En resumen, comenzamos con una sola capa de variables que tienen un peso predefinido vinculado a ellas. Pasamos eso a una capa de procesamiento, en este caso una función sigmoidea, y obtuvimos un resultado. En su nivel más básico, esta es una red neuronal.En este caso con la función AND fue sencillo, sin embargo, si quisieramos hacer lo mismo para funciones como OR o XOR el procedimiento para la red neuronal se convertiría en algo mucho mas engorroso.
+En resumen, comenzamos con una sola capa de variables que tienen un peso predefinido vinculado a ellas. Pasamos eso a una capa de procesamiento, en este caso una función sigmoidea, y obtuvimos un resultado. En su nivel más básico, esta es una red neuronal.En este caso con la función AND fue sencillo, sin embargo, si quisieramos hacer lo mismo para funciones como $OR$ o $XOR$ el procedimiento para la red neuronal se convertiría en algo mucho mas engorroso.
 
 Los siguientes son algunos aspectos importantes en una red neuronal.
 
-* Capa de entrada (input layer)
+* ***Capa de entrada (input layer)***
     + Esta es una capa que incluye una serie de características, incluido un nodo de sesgo, que es
 a menudo solo un parámetro de particular.
 
-* Capa oculta o de "cálculo" (The hidden layer)
+* ***Capa oculta o de "cálculo" (Hidden layer)***
    + Esta es la capa que calcula alguna función de cada característica. El número de
 los nodos en esta capa oculta dependen del cálculo. A veces, puede ser
 tan simple como un nodo en esta capa. Otras veces, la imagen puede ser más compleja
 con múltiples capas ocultas.
 
-* Capa de salida (output layer)
+* ***Capa de salida (output layer)***
     + Este es un nodo de procesamiento final, que podría ser una función única.
     
 Para el siguiente ejemplo usemos de nuevo el conjunto de datos `iris`
@@ -575,10 +560,9 @@ knitr::kable(table(iris$Species, predict(iris.nn, iris, type = "class")))
 ```
 
 
-### Máquinas de vectores de soporte (Support Vector Machines)
+### <span style="color:#3c55b3">Máquinas de vectores de soporte (Support vector machines) </span>
 
-Las máquinas vectoriales de soporte, o SVM, son otro algoritmo que puede utilizar tanto para
-regresión y clasificación. A menudo, se presenta como un corolario más simple o más rápido que una red neuronal.Funcionan de manera similar a regresión logística aunque involucra mas complejidades estadísticas, lo cual se estudiará mas adelante. La idea es tomar datos y probarlos para encontrar un plano o una línea que pueda separar los datos en diferentes clases.
+Las máquinas vectoriales de soporte, o SVM, son otro algoritmo que puede utilizar tanto para regresión y clasificación. A menudo, se presenta como un corolario más simple o más rápido que una red neuronal. Funcionan de manera similar a regresión logística aunque involucra mas complejidades estadísticas, lo cual se estudiará mas adelante. La idea es tomar datos y probarlos para encontrar un plano o una línea que pueda separar los datos en diferentes clases.
 
 Suponga que tiene n características en sus datos y m observaciones, o filas. Si n es mucho mayor que m (p. ej., n = 1000, m = 10), querrá utilizar regresión logística. Si tiene lo contrario (por ejemplo, n = 10, m = 1,000), es posible que desee utilizar un SVM en su lugar. Alternativamente, puede usar una red neuronal para cualquier caso, pero podría ser considerablemente más lento de entrenar que uno de estos algoritmos específicos.
 Puede realizar la clasificación SVM de una manera muy similar a la clasificación de redes neuronales, como vimos anteriormente:
@@ -590,13 +574,13 @@ knitr::kable(table(iris$Species, predict(iris.svm, iris, type = "class")))
 ```
 
 
-Los resultados aquí para la clasificación SVM son muy similares a los de la función nnet (). La única diferencia aquí es que el número predicho de especies versicolor de flores difiere en uno en comparación con nuestro clasificador nnet ().
+Los resultados aquí para la clasificación SVM son muy similares a los de la función nnet (). La única diferencia aquí es que el número predicho de especies versicolor de flores difiere en uno en comparación con nuestro clasificador `nnet()`.
 
 
 Una crítica a las redes neuronales es que pueden ser computacionalmente caras a escala o lentas según la complejidad del cálculo. Las SVM pueden ser más rápidas en algunos casos. Por otro lado, las redes neuronales profundas pueden representar más funciones "inteligentes" en comparación con la arquitectura SVM más simple. Una Red neuronal puede manejar múltiples entradas, mientras que las SVM solo pueden manejar una a la vez.
 
 
-### Aprendizaje no supervisado
+## <span style="color:#3c55b3">Aprendizaje no supervisado</span>
 
  Los algoritmos de aprendizaje no supervisados adoptan un enfoque diferente en el que intentan definir la estructura general de los datos. En principio, estos no tendrán un conjunto de prueba contra el cual evaluar el desempeño del modelo.
  
@@ -605,7 +589,7 @@ a algunos parámetros conocidos. El aprendizaje no supervisado no tiene ningún 
 contra el cual comparamos para puntuar el modelo. Se realiza la evaluación y puntuación del modelo de una manera ligeramente diferente a este respecto. Un ejemplo de ello puede ser la minería de texto.
 
 
-### Métodos de clustering no supervisados
+## <span style="color:#3c55b3">Métodos de clustering no supervisados</span>
 
 En este caso de clustering no supervisado los datos que tomamos no tienen ninguna etiqueta o categoría, esta clasificación la tendrá que hacer uno mismo.  Si genera datos aleatorios, realmente no sabe cómo se agruparán. En la siguiente figura podemos ver como se hace de forma usual el algoritmo de clustering usual `kmeans` para ver como deben ser clasificados  los datos.
 
@@ -630,7 +614,7 @@ plot(x, pch = cl$cluster)
 ```
 
 
-Sin embargo, debido a que el conjunto de datos no tiene una etiqueta explícita antes de aplicar la clasificación kmeans, lo mejor que puede hacer es etiquetar los puntos de datos futuros según
+Sin embargo, debido a que el conjunto de datos no tiene una etiqueta explícita antes de aplicar la clasificación `kmeans`, lo mejor que puede hacer es etiquetar los puntos de datos futuros según
 los centros de agrupamiento. Puede verlos imprimiéndolos desde la variable cl:
 
 ```{r}
