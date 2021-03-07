@@ -58,7 +58,7 @@ En R, hay solo una librería de redes neuronales que fué tiene una funcionalida
 
 El código mostrado en la *Figura 5-1* muestra una tabla similar a los datos de `binary.data` en la función `neuralnet()` (función del paquete del mismo nombre). El resultado que se obtiene será una ecuación que tiene los pesos $\theta_0 = -11.86048, \theta_1 = 7.75382, \theta_2 = 7.75519$.
 
-Entonces, sí tu jefe quiere realmente saber el estado del proceso del modelo de  la red neuronal, podrás decir que el modelo está listo para funcionar. No obstante, si tu jefe te pide detalles de cómo funciona exactamente, puedes decirle que se toman dos entradas $Var1$ y $Var2$ y las introduce en la ecuación:
+Entonces, sí tu jefe quiere realmente saber el estado del proceso del modelo de  la red neuronal, podrás decir que el modelo está listo para funcionar. No obstante, si tu jefe te pide detalles de cómo funciona exactamente, puedes decirle que se toman dos entradas $Var_1$ y $Var_2$ y las introduce en la ecuación:
 
 $$z = -11.86048 + 7.75382 Var_1 + 7.75519 Var_2$$
 
@@ -75,7 +75,7 @@ prediction(net)
 
 En la primera tabla están las variables de entrada y lo que la red neuronal piensa que es
 la respuesta. Como puede ver, las respuestas están bastante cerca de lo que deberían ser, que es lo que se muestra en la tabla de abajo. Hasta ahora, ha realizado con éxito una red neuronal con una sola capa. Es decir, todas las entradas pasaron por un solo punto de procesamiento.
-como se muestra en la Figura 5-1. Estos puntos de procesamiento son casi siempre funciones sigmoides, sin embargo, en algunos casos inusuales, se pueden pasar por la función tangente hiperbólica $\arctan(x)$, para conseguir un resultado similar.
+como se muestra en la Figura 5-1. Estos puntos de procesamiento son casi siempre funciones sigmoides, sin embargo, en algunos casos inusuales, se pueden pasar por la función tangente hiperbólica $\tanh(x)$, para conseguir un resultado similar.
 
 
 ### Múltiples salidas de calculos
