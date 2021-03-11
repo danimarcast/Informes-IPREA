@@ -1,148 +1,123 @@
 ---
-title: "CAPÍTULO 4"
-author: "William - Camilo"
-date: "2/6/2021"
+title: <span style="color:#3c55b3">4. Regresión en pocas palabras</span>
 output: html_document
+editor_options: 
+  chunk_output_type: inline
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library("caret")
+library("nnet")
 ```
-## Capitulo 4
-En el Capítulo 1, en el que exploramos brevemente los reinos del aprendizaje automático, comenzamos con la regresión lineal, porque probablemente es algo con lo que te has encontrado en algún momento de tu formación matemática.\
-El proceso es bastante intuitivo y más fácil de explicar como primer concepto que algunos otros modelos de aprendizaje automático. Además,
-muchos ámbitos del análisis de datos se basan en modelos de regresión, desde una empresa que trata de predecir sus beneficios, hasta las fronteras de la ciencia que trata de averiguar nuevos descubrimientos que rigen las leyes del universo.\
+
+<div style="text-align: justify">
+
+En el Capítulo 1, en el que exploramos brevemente los dominios del aprendizaje automático, comenzamos con la regresión lineal, porque probablemente es algo con lo que te has encontrado en algún momento de tu formación matemática. El proceso es bastante intuitivo y más fácil de explicar como primer concepto que algunos otros modelos de aprendizaje automático. Además, muchos ámbitos del análisis de datos se basan en modelos de regresión, desde una empresa que trata de predecir sus beneficios, hasta las fronteras de la ciencia que trata de averiguar nuevos descubrimientos que rigen las leyes del universo.
 Podemos encontrar la regresión en cualquier escenario en en el que se necesite una predicción contra el tiempo. 
-En este capítulo, examinamos cómo utilizar el modelado de regresión en R en profundidad, pero también exploramos algunas advertencias y escollos
-a tener en cuenta en el proceso.
-La motivación principal de la regresión es construir una ecuación mediante la cual podamos aprender más sobre nuestros datos.\
-No obstante, no existe una regla rígida sobre el tipo de modelo de regresión
-de regresión que debe ajustarse a los datos. Elegir entre una regresión logística, una regresión lineal regresión lineal, o un modelo de regresión multivariante depende del problema y de los datos
-que tenga.\
-Se puede ajustar una línea recta a una serie determinada de puntos de datos, pero  ¿es siempre el mejor caso? Lo ideal es encontrar un equilibrio entre la simplicidad y el poder explicativo.\\
+En este capítulo, examinamos cómo utilizar el modelado de regresión en R en profundidad, pero también exploramos algunas advertencias y escollos a tener en cuenta en el proceso.\
 
-$\underline{Importante}$ Una línea recta ajustada a una serie compleja de datos puede ser sencilla, pero puede no describir el cuadro completo. Por otro lado, tener un conjunto de datos muy simple que es básicamente una línea recta y ajustar un modelo con todo tipo de curvas extravagantes puede puede proporcionar un alto grado de precisión, pero deja muy poco espacio para que se ajusten nuevos puntos de datos. que se ajusten a ella.\
+La motivación principal de la regresión es construir una ecuación mediante la cual podamos aprender más sobre nuestros datos. No obstante, no existe una regla rígida sobre el tipo de modelo de regresión  que debe ajustarse a los datos. Elegir entre una regresión logística, una regresión lineal, o un modelo de regresión multivariada depende del problema y de los datos que se  tenga. Se puede ajustar una línea recta a una serie determinada de puntos de datos, pero  ¿es siempre el mejor caso? Lo ideal es encontrar un equilibrio entre la *simplicidad y el poder explicativo*.
 
-Puede que recuerdes en tu educación matemática de la escuela secundaria sobre tener un par de puntos de datos y ajustar una línea a través de ellos. Este ajuste a los datos es la forma más sencilla de
+*Una línea recta ajustada a una serie compleja de datos puede ser sencilla, pero puede no describir el cuadro completo*. Por otro lado, tener un conjunto de datos muy simple que es básicamente una línea recta y ajustar un modelo con todo tipo de curvas extravagantes puede puede proporcionar un alto grado de precisión, *pero deja muy poco espacio para que se ajusten nuevos puntos de datos se ajusten a ella*. Puede que recuerdes en tu educación matemática de la escuela secundaria sobre tener un par de puntos de datos y ajustar una línea a través de ellos. Este ajuste a los datos es la forma más sencilla de
 aprendizaje automático y se utiliza a menudo sin darse cuenta de que es un tipo de aprendizaje automático.
-Aunque el ajuste de una línea a dos puntos de datos es relativamente fácil de aprender, el ajuste de una línea con
-tres o más puntos de datos se convierte en una tarea más adecuada para que los ordenadores se encarguen de  computar ese tipo de problemas muy fácilmente.\
-
-R hace que muchos de estos pasos sean bastante simples
-de calcular, y este capítulo proporciona una base para evaluar $\underline{cuestiones}$ sobre dónde trazamos la línea entre la complejidad y la precisión del modelo.\
+Aunque el ajuste de una línea a dos puntos de datos es relativamente fácil de aprender, el ajuste de una línea con tres o más puntos de datos se convierte en una tarea más adecuada para que los ordenadores se encarguen de  computar ese tipo de problemas muy fácilmente. R hace que muchos de estos pasos sean bastante simples de calcular, y este capítulo proporciona una base para evaluar  *preguntas o cuestiones sobre dónde trazamos la línea entre la complejidad y la precisión del modelo*.\
 
 
-
-## REGRESION LINEAL
-En el capítulo 1, nos encontramos brevemente con la regresión lineal con un ejemplo del conjunto de datos mtcars
-. En ese ejemplo, se determinó una regresión lineal. En ese ejemplo, determinamos una relación lineal de la eficiencia del combustible como
-función del peso del vehículo y vimos que la tendencia era descendente. Extrajimos los coeficientes
-de una ecuación matemática lineal y nos quitamos el polvo.\
-
-$\bf{Sin}$ embargo, hay mucho más
-más que simplemente poner una ecuación en un montón de datos y darlo por terminado Volvamos
-a nuestro ejemplo de mtcars
+## <span style="color:#3c55b3">Regresión lineal</span>
+En el capítulo 1, nos encontramos brevemente con la regresión lineal con un ejemplo del conjunto de datos mtcars.  En ese ejemplo, se determinó una regresión lineal. En ese ejemplo, determinamos una relación lineal de la eficiencia del combustible como función del peso del vehículo y vimos que la tendencia era descendente. Extrajimos los coeficientes de una ecuación matemática lineal y nos quitamos el polvo *listo*. Sin embargo, hay mucho más
+más que simplemente poner una ecuación en un montón de datos y darlo por terminado. Volvamos a nuestro ejemplo de `mtcars`
 
 
 ```{r}
 model <- lm(mtcars$mpg ~ mtcars$disp)
-
-mpg <- predict(model); mpg #Valores Predichos
+mpg <- predict(model); mpg
 b0 <- round(model$coefficients[1],2); b0
 b1 <- round(model$coefficients[2],2); b1
+```
+
+```{r}
+model <- lm(mtcars$mpg ~ mtcars$disp)
+plot(y = mtcars$mpg, x = mtcars$disp, xlab = "Engine Size (cubic inches)",
+ ylab = "Fuel Efficiency (Miles per Gallon)", main = "Fuel Efficiency From
+the `mtcars` Dataset")
+abline(a = coef(model[1]), b = coef(model)[2], lty = 2)
 
 ```
 
-
-```{r pressure, echo=FALSE}
-require(ggplot2)
-ggplot(mtcars,aes(x = disp,y = mpg)) + geom_point() + labs(title = "regresion lineal",
-x = "tamaño del motor", y = "eficiencia del combustible") + geom_smooth (method = "lm")
-```
-
-Repasemos nuestro ejemplo de mtcars, donde modelamos 
-la eficiencia del combustible (mpg) en función del tamaño 
-del motor (disp) y luego observe las salidas 
+Repasemos nuestro ejemplo de `mtcars`, donde modelamos la eficiencia del combustible (mpg) en función del tamaño  del motor (disp) y luego observe las salidas 
 del modelo con la función de resumen:
 
-``` {r}
+```{r}
 summary(model)
 ```
-Hay una gran cantidad de información vertida desde el resumen() llamada 
-de función en este objeto de modelo lineal. Por lo general, el único número que la gente suele mirar para obtener una evaluación de precisión de  referencia es el valor múltiple de R-cuadrado. Cuanto más cerca esté ese valor de 1, más preciso será el modelo de regresión lineal. Sin embargo, hay muchos otros términos en este resultado, así que repasemos cada elemento para obtener una
+
+La función `summary()` nos da una gran cantidad de información de este modelo lineal. Por lo general, el único número que la gente suele mirar para obtener una evaluación de precisión de  referencia es el valor del R-cuadrado múltiple. Cuanto más cerca esté ese valor de $1$, más preciso será el modelo de regresión lineal. Sin embargo, hay muchos otros términos en este resultado, así que repasemos cada elemento para obtener una
 comprensión sólida:
 
-* Llamada: 
-Esto muestra la llamada a la función de fórmula que usamos. En este caso, usamos una variable de respuesta, mpg, en función de una variable dependiente, disp, los cuales estaban siendo llamados desde el mtcars marco de datos.
+* ***Call***: 
+Esto muestra la forma de la función que usamos. En este caso, usamos una variable de respuesta, `mpg`, en función de una variable dependiente, `disp`, estas son llamadas desde el conjunto de datos `mtcars`.
 
-* Residuales:
-Los residuos son una medida de la distancia vertical desde cada punto de datos hasta la línea ajustada en nuestro modelo. En este caso, 
-tenemos estadísticas resumidas para todas las distancias verticales de todos nuestros puntos en relación conla línea ajustada. Cuanto menor sea este valor, mejor será el ajuste
+* ***Residuals***:
+Los residuos son una medida de la distancia vertical desde cada punto de datos hasta la línea ajustada en nuestro modelo. En este caso,  tenemos estadísticas resumidas para todas las distancias verticales de todos nuestros puntos en relación con la línea ajustada. Cuanto menor sea este valor, mejor será el ajuste
 
-* Coeficientes:
+* ***Coefficients***:
 Estas son las estimaciones de los coeficientes de nuestra ecuación lineal. 
-Nuestra ecuación en este caso sería
+Nuestra ecuación en este caso sería $y = -0.04 x + 29.59$
 
-$$ {y} = 0,04 x + 29,59 $$
-* Std. Error: Con esos coeficientes vienen las estimaciones de error dadas por Std. Parte de error de la tabla de coeficientes. En realidad, nuestra ecuación sería algo así como
+* ***Std. Error***: Con dichos coeficientes vienen las estimaciones de error dadas por Std. Parte del error de la tabla de coeficientes. En realidad, nuestra ecuación sería algo así como $y =  (- 0. 04 ± 0. 005) x + (29. 59 ± 1. 23)$
 
-$$ {y} =  (- 0. 04 ± 0. 005) x + (29. 59 ± 1. 23)$$
-* t- valor: esta es la medida de la diferencia relativa a la variación en  nuestros datos. Este valor está vinculado con p-Valor  los cuales  se utilizan con mucha más frecuencia.
+* ***t-value***: Esta es la medida de la diferencia relativa a la variación en  nuestros datos. Este valor está vinculado con el p-valor,  los cuales  se utilizan con mucha más frecuencia.
 
-* p-valor: p-Valor Los valores son evaluaciones estadísticas de importancia. El funcionamiento de p- Valores son más complicados que eso, pero para nuestros propósitos  si el p-Valor es menor que 0.05 significa que podemos tomar el número como estadísticamente significativo. \
+* ***p-value***: Los p-valores son evaluaciones estadísticas de importancia. El funcionamiento de los p-valores son más complicados que eso, pero para nuestros propósitos  si el p-valor es menor que $0.05$ significa que podemos tomar el número como estadísticamente significativo. Si el número en cuestión tiene un p-valor mayor que $0.05$, deberíamos decir que este no es estadísticamente significativo. Los valores con asterisco se definen a continuación.
 
-Si el número en cuestión tiene un p-Valor mayor que 0.05, deberíamos ecir  de que no sea estadísticamente significativo. 
-Las calificaciones de estrellas junto a ellos
-se explican mediante los códigos de significado que siguen.
-
-Error estándar residual
+***Error estándar residual***\
 Esta estimación de error se refiere a la desviación estándar de nuestros datos.
 
-Múltiple R cuadrado
+***R-cuadrado Múltiple***\
 Este es el valor R cuadrado para cuando tenemos múltiples predictores. Esto
 no es totalmente relevante para nuestro ejemplo lineal, pero cuando agregamos más predictores al modelo, invariablemente nuestro R-cuadrado múltiple aumentará. Esto se debe a que alguna característica que agreguemos al modelo explicará alguna parte de la varianza, sea verdadera o no.
 
 
-R cuadrado ajustado
+***R-cuadrado ajustado***\
 Para contrarrestar los sesgos introducidos por tener un valor de R cuadrado en constante aumento con más predictores, el R cuadrado ajustado tiende a ser una mejor representación de la precisión de un modelo cuando hay múltiples características.
 
 
-Estadística F
-Finalmente, el estadístico F es la razón de la varianza explicada por los parámetros en el modelo y la varianza no explicada.
+***f-statistic (prueba estadística de Fisher)***\
+Finalmente, el test-f es la razón de la varianza explicada por los parámetros en el modelo y la varianza no explicada.
 
 
-Este simple ejemplo lineal tiene un poder explicativo decente. Hemos determinado una relación entre la eficiencia del combustible y el tamaño del motor. A menudo, aquí es donde los ejemplos de regresión lineal simples agotan su
-utilidad. Las cosas que más buscamos en este caso específico son la pendiente y la intersección. Si este ejemplo se aplicara a las ventas a lo largo del tiempo, por ejemplo, nuestro resultado de este ejercicio de modelado sería un valor inicial para la intersección y una tasa de crecimiento para el coeficiente.
+Este simple ejemplo lineal tiene un poder explicativo decente. Hemos determinado una relación entre la eficiencia del combustible y el tamaño del motor. A menudo, aquí es donde los ejemplos de regresión lineal simples agotan su utilidad. Las cosas que más buscamos en este caso específico son la pendiente y la intersección. Si este ejemplo se aplicara a las ventas a lo largo del tiempo, por ejemplo, nuestro resultado de este ejercicio de modelado sería un valor inicial para la intersección y una tasa de crecimiento para el coeficiente.
 
 
-##Regresión multivariante
+### <span style="color:#3c55b3">Regresión multivariada</span>
 
-Suponga que desea construir un modelo más sólido de eficiencia de combustible con más variables integradas. La eficiencia de combustible de un vehículo puede ser un fenómeno complejo con muchos factores que contribuyen además del tamaño del motor,por lo que encontrar todas las características que son responsable del consumo de  combustible. Es aqui donde se debe utilizar el modelo de regresión multivariada.
+Suponga que desea construir un modelo más sólido de eficiencia de combustible con más variables integradas. La eficiencia de combustible de un vehículo puede ser un fenómeno complejo con muchos factores que afectan, además del tamaño del motor, por lo que para encontrar todas las características que son responsable del consumo de  combustible debemos usar el modelo de regresión multivariada.
 
 Recuerde que nuestro ejemplo de regresión lineal simple se basó en:
 $${y} = b+ m_1x_1$$
-donde los coeficientes son la intersección, segundo, y m la pendiente,  vinculada a la única variable que teníamos en el modelo. Si desea incorporar más factores que contribuyan al modelo, cambie la forma matemática a:
+donde los coeficientes son la intersección $b$, y $m$ la pendiente,  vinculada a la única variable que teníamos en el modelo. Si desea incorporar más factores que contribuyan al modelo, cambie la forma matemática a:
 
-$$ {y} = b + m_{1} X_{1} + m_{2} X_{2} + m_{3} X_{3} + (...) $$
+$$ {y} = b + m_{1} x_{1} + m_{2} x_{2} + m_{3} x_{3} + (...) $$
 
-dónde $X_1, X_2, X_3$, y así sucesivamente, hay diferentes características en el modelo, como el peso del vehículo, el tamaño del motor, el número de cilindros, etc. Porque el nuevo objetivo es encontrar coeficientes para un modelo de la forma $$y = f (X_1, X_2, X_3, ( …))$$, Debe volver a visitar la llamada al lm () función en R:
+dónde $x_1, x_2, x_3$, y así sucesivamente, son diferentes características en el modelo, como el peso del vehículo, el tamaño del motor, el número de cilindros, etc. Dado que el nuevo objetivo es encontrar coeficientes para un modelo de la forma $y = f (x_1, x_2, x_3, ( …))$ Usemos de nuevo la función `lm ()` de R:
 
-``` {r }
+```{r }
 lm.wt<-lm(mtcars$mpg ~ mtcars$disp + mtcars$wt )
 summary ( lm.wt )
 ```
 
 
-Este código amplía el modelo lineal de antes para incluir el peso del vehículo en el procedimiento de ajuste del modelo. En este caso, lo que ve es que el R-cuadrado ajustado ha subido ligeramente de 0,709 cuando se ajusta a un modelo del tamaño del motor, a 0,7658 después de incluir el peso del motor en el ajuste. Sin embargo, observe que la relevancia estadística de la función anterior se ha reducido considerablemente. Antes de p-valor del peso característicamente estaba muy por debajo del umbral de 0,05 para un p-valor para ser significativo; ahora es 0,06. Esto podría deberse a que la eficiencia de combustible del vehículo es más sensible a los cambios en el peso del vehículo que al tamaño del motor.
+Este código amplía el modelo lineal de antes para incluir el peso del vehículo en el procedimiento de ajuste del modelo. En este caso, lo que  se ve es que el R-cuadrado ajustado ha subido ligeramente de $0.709$ cuando se ajusta a un modelo del tamaño del motor, a $0.7658$ después de incluir el peso del motor en el ajuste. Sin embargo, observe que la relevancia estadística de la función anterior se ha reducido considerablemente. Antes, el p-valor del peso estaba muy por debajo del umbral de $0.05$, que es el valor de un p-valor significativo; ahora es $0,06$. Esto podría deberse a que la eficiencia de combustible del vehículo es más sensible a los cambios en el peso del vehículo que al tamaño del motor.
 
 Si desea extender este análisis aún más, puede traer otra característica del conjunto de datos y ver cómo el R-cuadrado del modelo y los p-valores de los coeficientes cambian en consecuencia:
 
-``` {r}
+```{r}
 lm.cyl <- lm ( mtcars$mpg ~ mtcars$disp + mtcars$wt + mtcars$cyl )
 summary( lm.cyl )
 ```
 
-Este código adopta el mismo enfoque que antes, pero agrega el recuento de cilindros del motor al modelo. Observe que el valor de R cuadrado ha aumentado una vez más de 0,709 a 0.8147. Sin embargo, la relevancia estadística del desplazamiento en los datos es básicamente defextuosa, con una p-valor 10 veces el umbral en 0,53322 en lugar de más cerca de 0,05. Esto nos dice que la eficiencia del combustible está más relacionada con el conjunto de características combinadas del peso del vehículo y la cantidad de cilindros que con el tamaño del motor. Puede volver a ejecutar este análisis con solo las características estadísticamente relevantes:
+Este código adopta el mismo enfoque que antes, pero agrega el recuento de cilindros del motor al modelo. Observe que el valor de R-cuadrado ha aumentado una vez más de $0.709$ a $0.8147$. Sin embargo, la relevancia estadística de la cilindrada (disp) en los datos es básicamente defectuosa, con un p-valor $10$ veces el umbral en $0.53322$ en lugar de estar más cerca de 0.05. Esto nos dice que la eficiencia del combustible está más relacionada con el conjunto de características combinadas del peso del vehículo y la cantidad de cilindros que con el tamaño del motor. Puede volver a ejecutar este análisis con solo las características estadísticamente relevantes:
 
 
 ```{r}
@@ -150,9 +125,9 @@ lm.cyl.wt <- lm ( mtcars$mpg ~ mtcars$wt + mtcars$cyl  )
 summary ( lm.cyl.wt )
 ```
 
-Al eliminar la característica estadísticamente irrelevante del modelo, ha conservado más o menos la precisión R-cuadrado en 0.8185 versus 0.8147, mientras mantiene solo las características relevantes para los datos.
+Al eliminar la característica estadísticamente irrelevante del modelo, ha conservado más o menos la precisión R-cuadrado en $0.8185$ versus $0.8147$, mientras mantiene solo las características relevantes para los datos.
 
-Sin embargo, debe tener cuidado al agregar funciones a los datos. En R, puede modelar fácilmente una respuesta a todas las características de los datos llamando al lm () función con la siguiente forma:
+Sin embargo, debe tener cuidado al agregar funciones a los datos. En R, puede modelar fácilmente una respuesta a todas las características de los datos usando la función `lm ()` de la siguiente forma:
 
 ```{r, mtcars}
 lm.todos <- lm ( mpg ~ ., data =mtcars )
@@ -160,105 +135,287 @@ lm.todos <- lm ( mpg ~ ., data =mtcars )
 summary( lm.todos )
 ```
 
+Esta sintaxis crea un modelo lineal con la variable dependiente `mpg` siendo modelada contra todo el conjunto de datos, El problema con este enfoque, sin embargo, es que ve muy poco valor estadístico en los coeficientes del modelo. Así mismo, el error estándar para cada uno de los coeficientes es muy alto, por lo que es muy difícil precisar un valor exacto para los coeficientes. En lugar de este enfoque de arriba hacia abajo para ver qué características son las más importantes en el conjunto de datos, es mejor abordarlo de abajo hacia arriba como lo hemos hecho hasta ahora. Aunque el tema de la selección de funciones en sí es un tema muy amplio, (uno que exploramos en profundidad con otros algoritmos de aprendizaje automático) *podemos mitigar algunos de estos problemas de dos maneras*:
 
-Esta sintaxis crea un modelo lineal con la variable dependiente mpg se modela contra todo en el conjunto de datos, como se indica por. marcar en la llamada a la función. El problema con este enfoque, sin embargo, es que ve muy poco valor estadístico en los coeficientes del modelo. Asimismo, el error estándar para cada uno de los coeficientes es muy alto, por lo que es muy difícil precisar un valor exacto para los coeficientes. En lugar de este enfoque de arriba hacia abajo para ver qué características son las más importantes en el conjunto de datos, es mejor abordarlo de abajo hacia arriba como lo hemos hecho hasta ahora. Aunque el tema de la selección de funciones en sí es un tema muy amplio, uno que exploramos en profundidad con otros algoritmos de aprendizaje automático\
-podemos mitigar algunos de estos problemas de dos maneras:
-
- * Selección cuidadosa de funciones:
+***Selección cuidadosa de funciones:***\
 Elija características para agregar al modelo una a la vez y elimine las que sean estadísticamente insignificantes. Hemos logrado esto en los fragmentos de código anteriores agregando un parámetro a la vez y verificando si el p-valor de la salida del modelo para ese parámetro es estadísticamente significativo.
+ 
 
-
- * Regularización
+***Regularización:***\
 Mantenga todas las características pero reduzca matemáticamente los coeficientes de las menos importantes para minimizar su impacto en el modelo.
 
+### <span style="color:#3c55b3">Regularización</span>
 
 
-Regularización puede ser un concepto difícil matemáticamente, pero en principio es bastante sencillo. La idea es que desee incluir tantas características en sus datos como pueda incluir en el modelo final. Cuantas más funciones, mejor podrá explicar todas las complejidades del conjunto de datos. El problema aquí es que el grado en que cada característica explica parte del modelo, después de que se aplica la regularización, puede ser bastante diferente.
+Regularización puede ser un concepto difícil matemáticamente, pero en principio es bastante sencillo. *La idea es que desee incluir tantas características en sus datos como pueda incluir en el modelo final*. Cuantas más funciones, mejor podrá explicar todas las complejidades del conjunto de datos. El problema aquí es que el grado en que cada característica explica parte del modelo puede ser bastante diferente después de que se aplica la regularización.
 
 Mediante el uso de la regularización, puede hacer que su modelo sea más conciso y reducir el ruido en el conjunto de datos que podría provenir de características que tienen poco impacto en lo que está tratando de modelar.
 
-Veamos cuál es el modelo lineal para el mtcars el conjunto de datos se vería si incluyéramos todas las características. Tendríamos una ecuación como esta:
+Veamos cuál es el modelo lineal para el `mtcars` el conjunto de datos se vería si incluyéramos todas las características. Tendríamos una ecuación como esta:
 
 $$ {mpg} = 12.3 - 0.11_{cyl} + 0.01_{disp} - 0.02_{hp} + 0.79_{drat} - 3.72_{wt} + 0.82_{qsec} + 0.31_{vs} + 2.42_{am} + 0.66_{gear} - 0.20_{carb}$$
-Según esta ecuación lineal, la eficiencia del combustible es más sensible al peso del vehículo (-3,72 peso), dado que éste tiene el coeficiente más grande. Sin embargo, la mayoría de estos están todos dentro de un orden de magnitud entre sí. La regularización mantendría todas las características, pero las menos importantes tendrían sus coeficientes reducidos mucho más.
+Según esta ecuación lineal, la eficiencia del combustible es más sensible al peso del vehículo $(-3.72_{wt})$, dado que este tiene el coeficiente más grande. Sin embargo, la mayoría de estos están todos dentro de un orden de magnitud entre sí. *La regularización mantendría todas las características, pero las menos importantes tendrían sus coeficientes reducidos mucho más*
 
-Para utilizar esta técnica de regularización, llama a un tipo particular de modelo de regresión, conocido como  regresión  lasso, como se muestra aquí:
+Para utilizar esta técnica de regularización, usamos un tipo particular de modelo de regresión, conocido como  regresión  *lasso*, como se muestra aquí:
 
-````{r}
+```{r}
 require(lasso2)
-lm.lasso <- l1ce ( mpg ~ ., data = mtcars ) 
+lm.lasso<-l1ce( mpg ~ ., data = mtcars ) 
 summary(lm.lasso)$coefficients
-````
+```
 
 
-Este código llama al l1ce () función de la lasso2 paquete en el mtcars conjunto de datos. Esto usa la misma llamada de función que queremos la variable de eficiencia de combustible mpg modelado como una función de todas las otras
-variables en el conjunto de datos. Integrada en la regresión de lazo está la técnica de regularización, que solo se aplica durante la parte de levantamiento matemático pesado del algoritmo. La parte de regularización de la regresión
-escala los coeficientes de acuerdo con el impacto real que tienen en el modelo de una manera más estadística. En algunos casos, esto puede provocar que algunas características se reduzcan a un valor tan bajo que se aproximen acero. Como resultado de este modelo de regresión, ahora tiene una ecuación diferente:
+Este código usa función `l1ce()` del paquete `lasso2` en el conjunto de datos `mtcars`. Este usa la misma función que queremos que modele la variable de eficiencia de combustible `mpg`  como una función de todas las otras variables en el conjunto de datos. Integrado en la regresión *lasso* está la técnica de *regularización* que solo se aplica durante la parte matemática pesada del algoritmo. La parte de regularización de la regresión escala los coeficientes de acuerdo con el impacto real que tienen en el modelo de una manera más estadística. En algunos casos, esto puede provocar que algunas características se reduzcan a un valor tan bajo que se aproximen a cero. Como resultado de este modelo de regresión, ahora tiene una ecuación diferente:
 
-$$ {mpg} = 36.02 - 0.86_{cyl} + 0_{disp} - 0.014_{hp} + 0.06_{drat} - 2.69_{wt} + 0_{qsec} + 0_{vs} + 0,45_{am} + 0_{gear} - 0,095_{carb}$$
+$$ {mpg} = 36.02 - 0.86_{cyl} + 0_{disp} - 0.014_{hp} + 0.06_{drat} - 2.69_{wt} + 0_{qsec} + 0_{vs} + 0.45_{am} + 0_{gear} - 0.095_{carb}$$
 O, más simplemente:
 
-$$ {mpg} = 36.02 - 0.86_{cyl} - 0.014_{hp} + 0.06_{drat} - 2.69_{wt} + 0,45_{am}  - 0,095_{carb}$$
-La característica más importante antes del cambio a una regresión de lazo era el peso del vehículo, peso que no ha variado en cuanto a su importancia relativa. Aunque el coeficiente ha cambiado algo, el hecho de que sea el coeficiente de mayor magnitud sigue siendo el mismo. Lo que ve en términos de características menos útiles que se reducen, en este caso a cero, son características que probablemente pensaría que tienen poco impacto en la eficiencia del combustible para empezar. Tiempo de carrera de un cuarto de milla ( qsec),
+$$ {mpg} = 36.02 - 0.86_{cyl} - 0.014_{hp} + 0.06_{drat} - 2.69_{wt} + 0.45_{am}  - 0.095_{carb}$$
+La característica más importante antes del cambio a una regresión de *lasso* era el peso del vehículo `wt`, peso que no ha variado en cuanto a su importancia relativa. Aunque el coeficiente ha cambiado algo, el hecho de que sea el coeficiente de mayor magnitud sigue siendo el mismo. Lo que ve en términos de características menos útiles que se reducen, en este caso a cero, son características que probablemente pensaría que tienen poco impacto en la eficiencia del combustible para empezar.
+Tiempo de carrera de un cuarto de milla `(qsec)`, configuración del motor en términos de una forma V o en línea recta `(vs)`, y número de marchas hacia adelante `(gear)`, han sido todos reducidos a cero.
 
-configuración del motor en forma de V o en línea recta ( vs), y número de marchas hacia adelante ( engranaje) todos se han reducido a cero.
+Sin embargo, la variable de desplazamiento mostró una clara relación con la eficiencia del combustible que vimos anteriormente. Que se reduzca a cero no significa que no haya  relación entre esa única variable y nuestra respuesta, pero cuando se toma junto con todas las demás variables del conjunto de datos, su importancia es insignificante.
 
-Sin embargo, la variable de desplazamiento mostró una clara relación con la eficiencia del combustible que vimos anteriormente. Que se reduzca a cero no significa que haya No relación entre esa única variable y nuestra respuesta, pero cuando se toma junto con todas las demás variables del conjunto de datos, su importancia es insignificante.
+Recuerde, en este caso nos interesa un modelo de todas  las características, no necesariamente en la importancia de una sola característica.
 
-Recuerde, en este caso nos interesa un modelo de todos características, no necesariamente la importancia de uno característica.
+Observe en el nuevo modelo de regresión de *lasso* que algunos de los coeficientes se han eliminado más o menos matemáticamente del modelo. Para refinar aún más el modelo y reducir la cantidad de características en él, puede volver a ejecutar la regresión sin esas características y ver qué cambios:
 
-Observe en el nuevo modelo de regresión de lazo que algunos de los coeficientes se han eliminado más o menos matemáticamente del modelo. Para refinar aún más el modelo y reducir la cantidad de características en él, puede volver a ejecutar la regresión sin esas características y ver qué cambios:
-
-````{r}
-
-lm.lasso2 <- l1ce (mpg ~ cyl + hp + wt + am + carb , data = mtcars )
+```{r}
+require(lasso2)
+lm.lasso2 <- l1ce(mpg ~ cyl + hp + wt + am + carb , data = mtcars )
 summary(lm.lasso2)$coefficients
-````
-Con el conjunto de datos reducido que luego se pasa a otra regresión de lazo, puede ver que el tipo de transmisión del automóvil, a.m, y el número de carburadores, carbohidratos ambos se han reducido a cero. Al eliminar estas
-funciones y volver a ejecutarlas, puede ver si se abandonan más:
+```
 
-`````{r}
-lm.lasso3 <- l1ce ( mpg ~ cyl + hp + wt , data = mtcars )
-summary( lm.lasso3 )$coefficients
-````
+Con el conjunto de datos reducido que luego se pasa a otra regresión de *lasso*, puede ver que él tipo de transmisión del automóvil, `am`, y el número de carburadores, `carb` ambos se han reducido a cero. Al eliminar estas funciones y volver a ejecutarlas, puede ver si se bajar más:
 
-En este caso, los caballos de fuerza del automóvil, hp, ahora se ha retirado. Puede continuar ejecutándose siempre que tenga varias funciones para probar:
+```{r}
+lm.lasso3 <- l1ce( mpg ~ cyl + hp + wt , data = mtcars )
+summary(lm.lasso3)$coefficients
+```
 
-`````{r}
+En este caso, los caballos de fuerza del automóvil, `hp`, se ha retirado. Puede continuar ejecutándose siempre que tenga varias funciones para probar:
+
+```{r}
 lm.lasso4 <- l1ce ( mpg ~ cyl + wt , data = mtcars )
 summary( lm.lasso4 )$coefficients
-````
+```
 
 El resultado final es un modelo que tiene solo dos características en lugar de las 11 con las que comenzó:
 
-$$ {mpg} = 29.87   0.69_{cyl}   1.70_{wt} $$
-*Sugiero revisar el siguiente articulo pues la regresion lasso tiene tambien inconvenientes al ponerla a funcionar*
+$$ {mpg} = 29.87-0.69_{cyl}-1.70_{wt} $$
 
-https://idus.us.es/bitstream/handle/11441/77576/Ramos%20Castillo%20Laura%20TFG.pdf?sequence=1&isAllowed=y
+## <span style="color:#3c55b3">Regresión polinómica</span>
+
+La regresión polinómica consiste simplemente en ajustar una función de grado superior a los datos. Anteriormente, hemos visto ajustes a nuestros datos de la siguiente forma
+
+$$ {y} = b + m_{1} x_{1} + m_{2} x_{2} + m_{3} x_{3} + (...) $$
+La regresión polinómica se diferencia de los casos lineales simples por tener múltiples grados para cada característica del conjunto de datos. Su forma podría representarse de la siguiente manera
+
+$$ {y} = b + m_{1} x_{1}^2 $$
+
+La siguiente figura nos ayudará a razonar:
+
+```{r}
+pop<-data.frame(uspop) 
+pop$uspop <- as.numeric(pop$uspop)
+pop$year <- seq(from = 1790, to = 1970, by = 10)
+plot(y = pop$uspop, x = pop$year, main = "United States Population From 1790 to 1970",xlab = "Year", ylab = "Population")
+```
+
+Aquí tenemos un conjunto de datos incorporado en R que hemos modificado ligeramente para fines de demostración. Normalmente, `uspop` es un objeto de serie de tiempo que tiene sus propios criterios de trazado, pero aquí lo hemos ajustado para trazar sólo los puntos de datos. Estos datos son la población de los Estados Unidos en períodos de 10 años desde 1790 hasta 1970. Comencemos por ajustar un modelo lineal a los datos:
+
+```{r}
+lm1<- lm(pop$uspop ~ pop$year) 
+summary(lm1)
+```
+
+Este simple ajuste lineal de los datos parece funcionar bastante bien. Los valores p de las estimaciones son muy bajos, lo que indica una buena significación estadística. Asimismo, los valores de R-cuadrado son muy buenos. Sin embargo, los residuos muestran un grado de variabilidad bastante amplio, que llega hasta una diferencia de 36, como se demuestra en la siguiente figura:
+
+```{r}
+plot(y = pop$uspop, x = pop$year, main = "United States Population From 1790 to 1970",
+
+xlab = "Year", ylab = "Population")
+
+abline(a = coef(lm1[1]), b = coef(lm1)[2], lty = 2, col = "red")
+```
+
+El ajuste de la línea de puntos del modelo lineal parece estar bien. Se ajusta a algunos de los datos mejor que a otros, pero está bastante claro por los datos que no es exactamente una relación lineal. Además, sabemos por intuición que la población a lo largo del tiempo tiende a tener una forma más exponencial que una línea recta. Lo que se quiere hacer a continuación es ver cómo se compara un modelo de mayor grado con el caso lineal, que es el polinomio de menor grado que se puede ajustar:
 
 
+```{r}
+lm2 <- lm(pop$uspop ~ poly(pop$year, 2))
+summary(lm2)
+lm3 <- lm(pop$uspop ~ poly(pop$year, 3)) 
+summary(lm3)
+lm4 <- lm(pop$uspop ~ poly(pop$year, 4))
+summary(lm4)
+lm5 <- lm(pop$uspop ~ poly(pop$year, 5))
+summary(lm5)
+lm6 <- lm(pop$uspop ~ poly(pop$year, 6))
+summary(lm6)
+
+```
+
+Este código usa de nuevo la función `lm()`, pero esta vez con un parámetro extra alrededor de la variable dependiente, la función `poly()`. Esta función toma los datos  y calcula un vector ortogonal, que luego se escala adecuadamente. Por defecto, la función `poly()` no cambia los valores de los datos, pero puede utilizarla para ver si produce mejores resultados que el ajuste de orden inferior que hizo anteriormente. Recuerde que el ajuste lineal es técnicamente un polinomio, pero de grado $1$. En una ecuación, aquí está el ajuste del modelo resultante:
+$$y=b+m_1x_1^ 2 +m_2 x_1 $$
+
+Vamos a caminar lentamente a través de la salida de `summary()` primero. Mirar la salida de los residuos nos da un poco de alivio: ¡no hay residuos en el rango de 30!. Los residuos más pequeños son siempre mejores en términos de ajuste del modelo. La tabla de coeficientes tiene ahora tres entradas: una para el intercepto, una para el término de primer grado, y ahora una para el término de segundo grado. Cuando usó `poly(pop$year, 2)`, le indicó a R que quería un polinomio de los datos con el grado más alto siendo 2. Volviendo a la tabla de coeficientes, puede ver que todos los p-valores son estadísticamente significativos, lo que también es una buena indicación de que este es un modelo sólido que se ajusta a sus datos (ver Figura):
+
+```{r}
+plot(y =pop$uspop, x = pop$year, main = "United States Population From 1790 to 1970",xlab ="Year",ylab = "Population") 
+pop$lm2.predict = predict(lm2, newdata = pop);lines(sort(pop$year),fitted(lm2)[order(pop$year)], col = "blue",lty = 2)
+```
+
+De la Figura anterior, parece bastante obvio que el polinomio de mayor grado (en este caso una ecuación cuadrática) se ajusta mejor a los datos. Es evidente que el uso de polinomios de mayor grado funciona mejor que los de menor grado, ¿verdad? ¿Qué ocurre si se ajusta un polinomio de tercer grado? ¿O algo más alto aún? Apuesto a que si se utiliza un polinomio de sexto grado tendrías un modelo muy preciso. Lo que salta inmediatamente es que el ajuste lineal simple que tenías antes se ajustaba a los datos lo mejor posible, pero el polinomio de segundo grado o más alto (es decir, un cuadrático simple) se ajusta mejor. Una mejor manera de distinguir la diferencia entre los ajustes polinómicos de orden superior es observar los gráficos de los residuos de cada modelo, que puede ver en la Figura que sigue.
+
+```{r}
+plot(resid(lm1),main ="Degree 1",xlab = "Sequential Year", 
+plot(resid(lm2),main = "Degree 2",xlab = "Sequential Year", 
+plot(resid(lm3),main = "Degree 3",xlab = "SequentialYear",
+plot(resid(lm4),main = "Degree 4",xlab="SequentialYear",
+plot(resid(lm5),main="Degree 5",xlab="Sequential Year", 
+plot(resid(lm6), main="Degree 6", xlab="Sequential Year",ylab ="Fit Residual"),ylab="Fit Residual"),ylab="Fit Residual"),ylab="Fit Residual"),ylab = "Fit Residual"),ylab="Fit Residual")
+
+```
+
+Recordemos que el residuo es la distancia vertical entre un punto de datos y la línea del modelo ajustado. Un modelo que se ajusta exactamente a los puntos de datos debería tener un gráfico de residuos tan cercano a una línea plana como sea posible. En el caso de tu ajuste lineal, la escala del gráfico de residuos es mucho más grande que el resto, y puede ver que el ajuste lineal tiene una distancia residual bastante mala en su inicio, punto medio y final. Este no es un modelo ideal. Por otro lado, los polinomios de mayor grado parecen hacerlo bastante bien. La escala de sus gráficos de residuos es mucho más agradable, pero el que realmente destaca es el de sexto grado. *El gráfico de residuos es prácticamente nulo al principio, y luego se vuelve un poco más propenso a los errores.*
+
+Todo esto está muy bien, pero podría ser más fácil clasificar el ajuste del modelo mirando sus residuos numéricamente:
+
+```{r}
+c(sum(abs(resid(lm1))), sum(abs(resid(lm2))), sum(abs(resid(lm3))), sum(abs(resid(lm4))), sum(abs(resid(lm5))), sum(abs(resid(lm6))))
+```
+
+Este código suma  el valor absoluto del residuo. Si sólo se toma la suma bruta de los residuos, se obtiene una imagen inexacta porque algunos residuos pueden ser negativos. Así, el residuo total para el ajuste lineal es cuantitativamente malo comparado con el resto de los modelos, siendo el polinomio de sexto grado el claro ganador en términos de mejor ajuste a los puntos de datos.
+
+Pero, ¿el mejor ajuste a los puntos de datos es realmente el mejor modelo?. Debemos tener en cuenta los conceptos de **sobreajuste y subajuste de los datos.** El modelo lineal ajustado a los datos en el caso anterior sería un buen ejemplo de un escenario de *subajuste*. Está claro que hay alguna estructura en los datos que no se explica con un simple ajuste lineal. Por otro lado, **un modelo puede estar sobreajustado si es demasiado específico para los datos presentados y ofrece poco poder explicativo para cualquier dato nuevo que pueda entrar en el sistema.** Este es el riesgo que se corre al aumentar el grado de los modelos polinómicos.
+
+## <span style="color:#3c55b3">Bondad del ajuste con datos: los peligros del sobreajuste</span>
+
+Acabamos de ejecutar un ejemplo para tratar de obtener un modelo que tenga el mejor ajuste a nuestros datos. Este es un buen objetivo, pero hay que tener cuidado de no ir demasiado lejos en el ajuste perfecto a los datos. Hemos visto hasta ahora que el ajuste lineal a una curva de población probablemente no es el mejor modelo para el trabajo. Un ajuste cuadrático o un polinomio cúbico parecen hacerlo mucho mejor en comparación. Sin embargo, ¿merece la pena seguir aumentando el grado de ajuste del modelo? *¿Es la minimización del residuo el único objetivo a la hora de seleccionar el mejor modelo para el trabajo?*
+
+### <span style="color:#3c55b3">Error cuadrático medio</span>
+
+En estadística, el error cuadrático medio (RMSE) es una forma cuantificable de ver cómo se comparan los valores predichos de nuestro modelo con los valores reales. Matemáticamente, el RMSE se da como sigue:
 
 
-## Regresión Logística
+$$RMSE =\sqrt{( \text{predictedvalue} − \text{actualvalue})^ 2}$$
 
-Hasta ahora hemos considerado los modelos de regresión en términos de tomar algún tipo de datos numéricos a los que queremos ajustar algún tipo de curva para poder utilizarla con de predicción. La regresión lineal toma algún tipo de datos numéricos y hace una ecuación como $$y = mx + b$$. La regresión lineal también puede tener múltiples entradas y podríamos
-tener una ecuación como:
+Para evaluar los ajustes polinómicos, puede realizar un análisis de RMSE en cada uno de ellos. A continuación, puede comparar los errores resultantes y seleccionar el que tenga el resultado más bajo. Para ello, necesitas nuevos datos que no estén en tu modelo. Para ello, vamos a utilizar los datos del censo de población de EE.UU. de 1980 a 2010:
+
+```{r}
+uspop.2020<-data.frame(year = c(1980, 1990, 2000, 2010), uspop=c(226.5,249.6, 282.2, 309.3))
+uspop.2020.predict <- uspop.2020
+pop2 <- data.frame(uspop)
+pop2$uspop <- as.numeric(pop$uspop)
+pop2$year <- seq(from = 1790, to = 1970, by = 10)
+```
+
+Este código también reinicializa los datos de población antiguos con fines de predicción como medida de limpieza general. A partir de ahí, puedes hacer tu rutina de predicción habitual y luego calcular el RMSE para cada polinomio:
+
+```{r}
+uspop.2020.predict$lm1 <- predict(lm(uspop ~ poly(year, 1), data = pop2), uspop.2020)
+
+uspop.2020.predict$lm2 <- predict(lm(uspop ~ poly(year, 2), data = pop2), uspop.2020)
+
+uspop.2020.predict$lm3 <- predict(lm(uspop ~ poly(year, 3), data = pop2), uspop.2020)
+
+uspop.2020.predict$lm4 <- predict(lm(uspop ~ poly(year, 4), data = pop2), uspop.2020)
+
+uspop.2020.predict$lm5 <- predict(lm(uspop ~ poly(year, 5), data = pop2), uspop.2020)
+
+uspop.2020.predict$lm6 <- predict(lm(uspop ~ poly(year, 6), data = pop2), uspop.2020)
+
+
+#And, finally, calculate the RMSE:
+
+c(sqrt(mean((uspop.2020.predict$uspop - uspop.2020.predict$lm1)^2)),
+
+sqrt(mean((uspop.2020.predict$uspop - uspop.2020.predict$lm2)^2)), sqrt(mean((uspop.2020.predict$uspop - uspop.2020.predict$lm3)^2)), sqrt(mean((uspop.2020.predict$uspop - uspop.2020.predict$lm4)^2)), sqrt(mean((uspop.2020.predict$uspop - uspop.2020.predict$lm5)^2)), sqrt(mean((uspop.2020.predict$uspop - uspop.2020.predict$lm6)^2)))
+```
+
+
+A partir de estos resultados, puede ver que el ajuste lineal simple tuvo un RMSE de $75$, el polinomio de segundo grado tuvo $8$, y el polinomio de tercer grado tuvo $5$. Los errores se disparan después del polinomio de tercer grado, lo que es otra indicación de que los modelos se ajustaron demasiado a los datos. En este caso, se seleccionaría el modelo que tiene el menor RMSE para los nuevos datos predichos, eligiendo el polinomio de grado tres.
+
+
+### <span style="color:#3c55b3">Simplicidad del modelo y bondad del ajuste</span>
+
+Si recuerda los coeficientes del modelo, cada uno de ellos tiene un p-valor de significación estadística vinculado al procedimiento de ajuste del modelo `lm()`. Si el p-valor de un coeficiente es inferior a $0.05$, es seguro asumir que es estadísticamente importante para su modelo.
+
+Para ayudarle a decidir qué modelo utilizar, identifique dónde está el equilibrio *entre la precisión y la complejidad del modelo*. Cuanto más complejo sea el modelo, es decir, el grado del polinomio utilizado, más se ajustará a los datos, pero se corre el riesgo de que algunos de los coeficientes sean menos válidos estadísticamente a medida que el modelo se hace más complejo. Para evitarlo, observe primero el R-cuadrado y el número de coeficientes estadísticamente válidos de cada uno de sus modelos:
+
+```{r}
+table((summary(lm1)$coefficients[, 4]) < 0.05)
+summary(lm1)$r.squared
+```
+
+Este ejemplo toma los coeficientes del ajuste lineal simple, `lm1`, y luego extrae los p-valores vinculados a los coeficientes. A continuación, tabula cuántos de ellos son estadísticamente válidos (si son superiores a $0.05$). El resultado del caso lineal simple es que hay dos coeficientes: la pendiente y el intercepto, y que ambos son estadísticamente válidos. El valor de R-cuadrado también confirma que el ajuste es bastante bueno, pero vamos a utilizarlo como referencia para comparar.
+
+En lugar de calcular esto para cada modelo y mirar hacia adelante y hacia atrás en los resultados, puede volcar toda esta información en un marco de datos práctico para facilitar la lectura. Vamos a definir `model.order` como el grado más alto del ajuste polinómico (esto es simplemente el número que se pasa a la función `poly()` durante el uso de la función `lm()` del modelo lineal. A continuación, defina `coef.true` como el número de coeficientes que son estadísticamente válidos en el modelo. En este caso, usted está mirando sólo los coeficientes relacionados con las variables dependientes y no el intercepto del modelo, que es estadísticamente válido en todos los casos, de ahí que reste el valor de `coef.true` por $1$. A continuación, define un término `coef.false` como el caso opuesto: cuántos de los coeficientes del modelo sobre las variables dependientes no son estadísticamente significativos. Por último, se define un valor `model.rsq`, que es la exactitud extraída del modelo R-cuadrado. A continuación, se reúne todo en un marco de datos y se define una última métrica: la bondad. Esta medida compara la relación entre los coeficientes estadísticamente significativos y el orden del modelo:
+
+````{r}
+model.order <- c(1,2,3,4,5,6)
+coef.true <- c(
+table((summary(lm1)$coefficients[,4])<0.05) - 1
+,table((summary(lm2)$coefficients[,4])<0.05) - 1
+,table((summary(lm3)$coefficients[,4])<0.05)[2] - 1
+,table((summary(lm4)$coefficients[,4])<0.05)[2] - 1
+,table((summary(lm5)$coefficients[,4])<0.05)[2] - 1
+,table((summary(lm6)$coefficients[,4])<0.05)[2] - 1
+)
+coef.false <- c(
+0
+,0
+,table((summary(lm3)$coefficients[,4])<0.05)[1]
+,table((summary(lm4)$coefficients[,4])<0.05)[1]
+,table((summary(lm5)$coefficients[,4])<0.05)[1]
+,table((summary(lm6)$coefficients[,4])<0.05)[1]
+)
+model.rsq <- c(
+summary(lm1)$r.squared
+,summary(lm2)$r.squared
+,summary(lm3)$r.squared
+,summary(lm4)$r.squared
+,summary(lm5)$r.squared
+,summary(lm6)$r.squared
+)
+model.comparison <- data.frame(model.order, model.rsq, coef.true, coef.false)
+model.comparison$goodness <- (model.comparison$coef.true / model.comparison
+$model.order)
+knitr::kable(model.comparison)
+```
+
+El resultado demuestra que, aunque la precisión del R-cuadrado del modelo puede aumentar a medida que el ajuste se vuelve más complejo, la bondad de ese ajuste disminuye con el tiempo porque el número de coeficientes estadísticamente significativos en comparación con el número total de coeficientes tiende a disminuir. Una forma de cuantificar estadísticamente esto es clasificar los elementos asociados que le interesa optimizar con lo siguiente:
+
+
+```{r}
+model.comparison$rank<-sqrt(model.comparison$goodness^2 + model.comparison$model.rsq^2) 
+knitr::kable(model.comparison)
+```
+
+Lo que podemos decir de este procedimiento es que tenemos un modelo óptimo a elegir que tiene el valor de rango más alto. Un modelo que tiene un R-cuadrado más bajo y un rango más bajo no se ajusta a los datos. Un modelo que tiene un R-cuadrado más alto y un rango más bajo es un modelo sobreajustado a nuestros datos.
+
+## <span style="color:#3c55b3">Regresión Logística</span>
+
+Hasta ahora hemos considerado los modelos de regresión en términos de tomar algún tipo de datos numéricos a los que queremos ajustar algún tipo de curva para poder utilizarla con de predicción. La regresión lineal toma algún tipo de datos numéricos y hace una ecuación dela forma
+$$y = mx + b$$ 
+La regresión lineal también puede tener múltiples entradas y podríamos tener una ecuación de la forma:
+
 $$y= b+m_1x_1+ m_2x_2 +(...).$$ 
 
-Además, estos tipos de modelos de
-de regresión pueden convertirse en casos no lineales como $$y = b + m_1x_1 + m_2x_1^2 +m_3x_1^3 + (…)$$
-Todos ellos tienen sus propios casos de uso y dependen totalmente de los
-datos con los que trabajemos y de la estrategia que sigamos sobre el tipo de precisión que queremos optimizar.
+Además, estos tipos de modelos de de regresión pueden convertirse en casos no lineales de la forma
+$$y = b + m_1x_1 + m_2x_1^2 +m_3x_1^3 + (…)$$
+Todos ellos tienen sus propios casos de uso y dependen totalmente de los datos con los que trabajemos y de la estrategia que sigamos sobre el tipo de precisión que queremos optimizar.
 Hasta ahora, todos estos métodos han incorporado una entrada numérica y nos han proporcionado una salida numérica.
-¿Y si, en cambio, quisiéramos un resultado "sí" o "no" de nuestros datos? ¿Y si tratáramos de hacer algo como determinar si nuestros datos de entrada tuvieran un resultado positivo onegativo?.\
+¿Y si, en cambio, quisiéramos un resultado "sí" o "no" de nuestros datos? ¿Y si tratáramos de hacer algo como determinar si nuestros datos de entrada tuvieran un resultado positivo o negativo?.\
 En este caso, estaríamos tomando datos numéricos continuos y obteniendo algún tipo de resultado discreto. Esta es la base para el extremo de clasificación de nuestro modelado de regresión.\
-La regresión logística es un tipo particular de clasificación y relativamente
-simple para ser utilizada como un ejemplo introductorio. La regresión logística,  a diferencia de la regresión lineal, encuentra el punto en el que los datos pasan de un tipo de clasificación a otro, en lugar de tratar de ajustar todos los puntos de datos individuales en sí mismos.
+La *regresión logística* es un tipo particular de clasificación y relativamente simple para ser utilizada como un ejemplo introductorio. La regresión logística,  a diferencia de la regresión lineal, encuentra el punto en el que los datos pasan de un tipo de clasificación a otro, en lugar de tratar de ajustar todos los puntos de datos individuales en sí mismos.
 
-#La motivación de la clasificación
+### <span style="color:#3c55b3">La motivación de la clasificación</span>
+
 Supongamos que se intenta diagnosticar a los pacientes para determinar si tienen un tumor maligno. Veamos el código y el gráfico resultante en la Figura 4-7:
 
-```{r presure,echo=FALSE}
+```{r pressure,echo=FALSE}
 data <- data.frame(tumor.size <- c(1, 2, 3, 4, 5, 6, 7, 8, 9,
  20), malignant <- c(0, 0, 0, 0, 1, 1, 1, 1, 1, 1))
 tumor.lm<-lm(malignant ~ tumor.size, data = data)
@@ -269,34 +426,33 @@ summary(tumor.lm)$r.squared
 ```
 
 Este código crea un conjunto de datos de tamaños de tumores de 1 a 20 y clasifica si son malignos, clasificando un tumor benigno o no canceroso como 0, y un tumor maligno o canceroso se clasifica como 1. Un instinto ingenuo podría ser el de aplicar un modelo de regresión sobre estos datos y ver cuál es el resultado de la ecuación. Con este enfoque, usted obtendría una ecuación como la siguiente
-$$malignidad del tumor = 0,061 × tamaño del tumor + 0,204$$
 
-**El mal ajuste** de la R-cuadrado en 0,406 sugiere que podríamos obtener un
-modelonmas preciso. Además, debería cuestionar la evaluación lógica de lo que significa tener un tumor que es 0,2 maligno cuando se registran en los datos como siendo malignos o no, sin espacio intermedio.\
+$$\textrm{tumor maligno} = 0,204+0,061 ×\textrm{tamaño del tumor} $$
 
-Esto tampoco tendría mucho sentido con el conjunto de datos mtcars si tuviéramos algo modelado contra el tipo de transmisión.
+El mal ajuste de la R-cuadrado en 0,406 sugiere que podríamos obtener un modelo  mas preciso. Además, debería cuestionar la evaluación lógica de lo que significa tener un tumor que es 0,2 maligno cuando se registran en los datos como siendo malignos o no, sin espacio intermedio.\
+
+Esto tampoco tendría mucho sentido con el conjunto de datos `mtcars` si tuviéramos algo modelado contra el tipo de transmisión.
 ¿Qué sería un 0,2 de transmisión si el 0 fuera manual y el 1 fuera automático?
-Tenemos que replantearnos este enfoque. En lugar de ajustar una función matemática normal\
+Tenemos que replantearnos este enfoque. En lugar de ajustar una función matemática normal necesitamos ajustar algo llamado *límite de decisión* a los datos.
 
-## El limite de decision
-necesitamos ajustar algo llamado límite de decisión a los datos.  El límite de decisión es simplemente una línea en la arena de nuestros datos que dice "cualquier cosa en este lado se clasifica como X y cualquier cosa del otro lado se clasifica como Y". La figura 4-8
+### <span style="color:#3c55b3">El límite de decisión</span>
+
+El límite de decisión es simplemente una línea en la arena de nuestros datos que dice "cualquier cosa en este lado se clasifica como $X$ y cualquier cosa del otro lado se clasifica como $Y$". La figura 4-8
 
 ```{r presure,echo=FALSE}
 plot(y = data$malignant, x = data$tumor.size, main = "Tumor Malignancy by Size",
 ylab = "Type (0 = benign, 1 = cancerous)", xlab = "Tumor Size")
 abline(v = 4.5)
 ```
-revisando el gráfico de los tamaños de los tumores y si son malignos. Se puede ver claramente que cualquier tumor de tamaño superior a 5 siempre parece ser maligno
-La regresión logística establece el límite con el que se pueden clasificar los datos. El límite
-límite en la **Figura 4-8** muestra que cualquier tamaño de tumor superior a 4,5 es maligno mientras que cualquier tamaño inferior es benigno.
 
 
+La regresión logística establece el límite con el que se pueden clasificar los datos. El límite en la  *Figura 4-8* muestra que cualquier tamaño de tumor superior a 4,5 es maligno mientras que cualquier tamaño inferior es benigno.
 
 
-#La función sigmoidea
+### <span style="color:#3c55b3">La función sigmoide</span>
+
 La forma en que la regresión logística (así como muchos otros tipos de algoritmos de clasificación)
-se basa en los fundamentos matemáticos de la función sigmoidea. La función sigmoidea
-tiene la siguiente forma matemática:
+se basa en los fundamentos matemáticos de la función sigmoide. La función sigmoide tiene la siguiente forma matemática:
 
 $$ h(x)=\frac{1}{1+e^{-x}}$$
 
@@ -305,17 +461,30 @@ $$ h(x)=\frac{1}{1+e^{-x}}$$
 curve(1/(1 + e^-x), -10, 10, main = "The Sigmoid Function", xlab = "Input",
       ylab = "Probability")
 ``` 
-Esta función se utiliza en la regresión logística para clasificar los datos. Por sí misma, la función toma algún valor numérico que nos interesa y lo asigna a una probabilidad entre 0 y 1. Podríamos tener la tentación de introducir algunos de los valores de nuestro ejemplo anterior en la función sigmoidea y ver cuál es el resultado.\
 
-Si lo hiciéramos, como poner x = 1, por ejemplo, obtendríamos h(1) = 0,73, o aproximadamente un 73% de probabilidad de que un tumor sea maligno si nuestra entrada es 1. Sin embargo, nuestro sistema de clasificación es 0 para benigno y 1 para maligno. La entrada de longitud = 1 da un resultado de 0,73, que es incorrecto.\
+Esta función se utiliza en la regresión logística para clasificar los datos. Por sí misma, la función toma algún valor numérico que nos interesa y lo asigna a una probabilidad entre 0 y 1. Podríamos tener la tentación de introducir algunos de los valores de nuestro ejemplo anterior en la función sigmoide y ver cuál es el resultado.\
 
-**En su lugar, necesitamos pasar un conjunto de parámetros ponderados al regresor logístico.\**
+
+
+Si lo hiciéramos, como poner $x = 1$, por ejemplo, obtendríamos $h(1) = 0,73$, o aproximadamente un $73%$ de probabilidad de que un tumor sea maligno si nuestra entrada es $1$. Sin embargo, nuestro sistema de clasificación es $0$ para benigno y $1$ para maligno. La entrada de longitud $1$ da un resultado de $0,73$, que es incorrecto.\
+
+
+
+```{r }
+  e<-exp(1)
+x=1
+h<-(1/(1 + e^-x))
+h
+``` 
+
+En su lugar, necesitamos pasar un conjunto de parámetros ponderados al regresor logístico.
 Dado que por el momento sólo tenemos una variable dependiente (teniendo en cuenta que el eje Y de nuestro resultado de clasificación no es una variable de entrada), deberíamos esperar pasar una función a nuestro regresor logístico que tenga una forma similar a la siguiente:
 
 
-$$ g(longitud) = θ_0+ θ_1longitud$$
+$$ g(\textrm{longitud}) = θ_0+ θ_1\textrm{longitud}$$
 
-A priori, aún no sabemos cuáles son los pesos. Lo que sí queremos es que sean tales que nuestra función g(x), al pasarla a nuestra función sigmoidea, nos dé una clasificación que se parezca razonablemente a lo que vemos en nuestros datos:
+A priori, aún no sabemos cuáles son los pesos. Lo que sí queremos es que sean tales que nuestra función $g(x)$, al pasarla a nuestra función sigmoidea, nos dé una clasificación que se parezca razonablemente a lo que vemos en nuestros datos:
+
 ```{r}
 lengths <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 t1 = -4.5
@@ -324,98 +493,178 @@ g = t1 + t2 * lengths
 s = 1/(1 + e^-g)
 data.frame(lengths, g, s)
 ```
-Este fragmento de código toma las longitudes de los tumores de entrada, que van de 1 a 10, y elige dos pesos de $$θ_0 = 4,5  ;   θ_0 = 1$$ En la práctica, habría que experimentar
-con la elección de los valores de los pesos y viendo cómo reaccionan los resultados, o a través de un algoritmo que le dé la respuesta. El código anterior proporciona la respuesta como resultado final. Se utilizan como pesos para la función g(x) que se pasa a la sigmoidea. La tabla del código presenta la clasificación resultante de los datos como S. Un tumor de longitud 1, cuando se pasa por la función de entrada g(x)
-da un resultado de -3,5. Este valor, cuando se pasa a la función sigmoidea, da un resultado que es bastante cercano a cero. Esto significa que un tumor de longitud 1 tiene una probabilidad muy baja
+
+Este fragmento de código toma las longitudes de los tumores de entrada, que van de $1$ a $10$, y elige dos pesos de $$\theta_0= -4,5$$ y $$\theta_1=1$$ En la práctica, habría que experimentar
+con la elección de los valores de los pesos y viendo cómo reaccionan los resultados, o a través de un algoritmo que le dé la respuesta. El código anterior proporciona la respuesta como resultado final. Se utilizan como pesos para la función $g(x)$ que se pasa a la sigmoidea. La tabla del código presenta la clasificación resultante de los datos como $s$. Un tumor de longitud $1$, cuando se pasa por la función de entrada $g(x)$ da un resultado de $-3,5$. Este valor, cuando se pasa a la función sigmoidea, da un resultado que es bastante cercano a cero. Esto significa que un tumor de longitud $1$ tiene una probabilidad muy baja
 de ser maligno, como se demuestra en la Figura 4-10:
 
 ```{r}
 plot(y = s, x =lengths, pch = 1, main = "Entradas de la función sigmoide y redondeo
 Estimaciones",
 xlab = "Longitudes del tumor", ylab = "Probabilidad de tipificación de la clase 1")
-points(y = round(s), x = lengths, pch = 3)
+points(y = round(s), x = lengths, pch = 4)
 ```
-**Figura 4-10** Para una longitud de entrada dada, se puede ver la estimación de la función sigmoidea en círculos, y su valor redondeado en cruces
-La Figura 4-10 presenta las probabilidades de que las longitudes de los tumores se clasifiquen como malignas si la probabilidad es de 1,0 y benigna si la probabilidad es de 0,0. 
+
+Para una longitud de entrada dada, se puede ver la estimación de la función sigmoide en círculos, y su valor redondeado en cruces.
+La *Figura 4-10* presenta las probabilidades de que las longitudes de los tumores se clasifiquen como malignas si la probabilidad es de $1,0$ y benigna si la probabilidad es de $0,0$. 
 
 El resultado es bastante cercano, pero hay algún error en él. Se obtendría una imagen mucho mejor si simplemente se redondean los valores al número entero más cercano.\
-El resultado final es una clasificación que se parece
-exactamente como los datos de partida.\
+El resultado final es una clasificación que se parece exactamente como los datos de partida.\
 
-Empezamos con los datos de entrada siendo la longitud del tumor. La salida  tipo de tumor entre benigno, y = 0, y maligno, y = 1, ya nos fue dada.
+Empezamos con los datos de entrada siendo la longitud del tumor. La salida del tipo de tumor entre benigno, $y = 0$, y maligno, $y = 1$, ya nos fue dada.
 
 El objetivo era diseñar un modelo que calculara la probabilidad de que un tumor fuera benigno o maligno en función de su longitud. Para ello, partimos de la ecuación
 
-$$g (x) = θ_0 + θ_1x$$ y, a continuación, encontrar los pesos $θ_0$ y $θ_1$ , que ayudaron a sacar valores que, cuando se pasan a través de una función sigmoidea, proporcionan valores que parecen correctos para lo que necesitábamos.\
+$$g (x) = θ_0 + θ_1x$$ y, a continuación, encontrar los pesos $θ_0$ y $θ_1$ , que ayudaron a sacar valores que, cuando se pasan a través de una función sigmoide, proporcionan valores que parecen correctos para lo que necesitábamos.\
 
-Lo que obtenemos al final es un límite de decisión en longitud = 4,5; cualquier valor por encima se clasifica como 1, y cualquier valor por debajo se clasifica
-como 0.
+Lo que obtenemos al final es un límite de decisión en $\textrm{longitud} = 4,5$; cualquier valor por encima se clasifica como $1$, y cualquier valor por debajo se clasifica
+como $0$.
 Los mecanismos por los que funcionan los algoritmos de clasificación como la regresión logística para determinar esas ponderaciones de modelización son algo similares en su alcance a cómo se calculan las ponderaciones de regresión lineal simple. se calculan los pesos de la regresión. Sin embargo, dado que el objetivo de este texto es ser de naturaleza introductoria, le remitiré al apéndice estadístico de la regresión lineal.
-La regresión logística y muchos otros algoritmos de aprendizaje automático funcionan de forma similar.pero adentrarse demasiado en el ámbito de la optimización de algoritmos puede resultar demasiado matemático y perderíamos el enfoque de los algoritmos. perderíamos el foco en la comprensión y aplicación del ecosistema del  aprendizaje automático en su conjunto.
+*La regresión logística y muchos otros algoritmos de aprendizaje automático funcionan de forma similar.pero adentrarse demasiado en el ámbito de la optimización de algoritmos puede resultar demasiado matemático y perderíamos el enfoque de los algoritmos. perderíamos el foco en la comprensión y aplicación del ecosistema del  aprendizaje automático en su conjunto.*
 
-#Clasificación binaria
-Todo lo que hemos hecho hasta ahora en términos de clasificación ha sido sobre datos binarios: el
-tumor es maligno o benigno. La Figura 4-11 muestra otro ejemplo en el que
-determinamos las clases basándonos en la distribución de los datos:
-  
-plot(iris$Sepal.Length ~ iris$Sepal.Width, main = "Iris Flower Sepal Length vs
-Anchura del sépalo",
-xlab = "Anchura del sépalo", ylab = "Longitud del sépalo")
+### <span style="color:#3c55b3">Clasificación binaria</span>
 
-**Figura 4-11**Puede utilizar la regresión logística para los datos que están más repartidos en lugar de
-ser discretos en la salida
+Todo lo que hemos hecho hasta ahora en términos de clasificación ha sido sobre datos binarios: el tumor es maligno o benigno. La Figura 4-11 muestra otro ejemplo en el que determinamos las clases basándonos en la distribución de los datos:
+
+```{r}
+#figura 4-11
+plot(iris$Sepal.Length ~ iris$Sepal.Width, main = "Iris Flower Sepal Length vs Sepal Width",
+xlab = "Sepal Width", ylab = "Sepal Length")
+```
+
+**La figura 4-11** Puede utilizar la regresión logística para los datos que están más repartidos en lugar de ser discretos en la salida.
 En la Figura 4-11, hay un montón de puntos de datos y lo que parece ser dos clases diferentes de plantas.
 Parece que hay una agrupación de puntos de datos en la parte inferior del gráfico que parecen estar más separados que los otros. Puedes ajustar un modelo de regresión logística a estos datos y encontrar la ecuación de la línea que hace de límite de decisión.
-Todos los puntos por debajo de ese umbral se clasificarán como un tipo, y todos los puntos
-por encima de la línea se clasificarán como de otro tipo.
+Todos los puntos por debajo de ese umbral se clasificarán como un tipo, y todos los puntos por encima de la línea se clasificarán como de otro tipo.
 
-Este ejercicio utiliza un modelo lineal generalizado, dado por la función glm(). Su uso es más flexible que el de la función de modelo lineal estándar lm(), ya que se puede utilizar para propositos de clasificación
+Este ejercicio utiliza un modelo lineal generalizado, dado por la función `glm()`. Su uso es más flexible que el de la función de modelo lineal estándar `lm()`, ya que se puede utilizar para propositos de clasificación
+
 ```{r}
-iris.binary <- iris
-plot(iris$Sepal.Length ~ iris$Sepal.Width, main = "Iris Flower Sepal Length vs
-Sepal Width",
-xlab = "Sepal Width", ylab = "Sepal Length")
-iris.binary$binary <- as.numeric(iris[, 5] == "setosa")
-iris.logistic <- glm(binary ~ Sepal.Width + Sepal.Length, data = iris.binary,
-familia = "binomial")
-iris.logistic
-````
+iris.binary<- iris
+iris.binary$binary<-as.numeric(iris[, 5]=="setosa")
+iris.logistic<-glm(binary~Sepal.Width + Sepal.Length, data = iris.binary,family="binomial")
+iris.logistic 
+```
 
-## Llamada: glm(fórmula = binario ~ Anchura.Sepal + Longitud.Sepal,
-## family = "binomial", data = iris.binary)
-##
-## Coeficientes:
-## (Intercepción) Anchura.Sepal Longitud.Sepal
-## 437.2 137.9 -163.4
-##
-## Grados de libertad: 149 totales (es decir, nulos); 147 residuales
-## Desviación nula: 191
-## Desviación residual: 2,706e-08 AIC: 6
-El resultado de este método proporciona algunos coeficientes e interceptos que no
-parecen totalmente correctos. Se necesita un paso adicional para calcular la pendiente y los interceptos de la límite de decisión de esta manera. Recuerda por un momento cómo utilizaste la función sigmoidea
+El resultado de este método proporciona algunos coeficientes e interceptos que no parecen totalmente correctos. Se necesita un paso adicional para calcular la pendiente y los interceptos de la límite de decisión de esta manera. Recuerda por un momento cómo utilizaste la función sigmoide
 $$g(z) = 1/(1 + e^{-z})$$
-z es una función con la siguiente forma
-
+$z$ es una función con la siguiente forma
 $$z = θ_0 + θ_1x_1 + θ_2x_2$$
-Como se desea un valor entre 0 y 1 para la clasificación binaria, la clasificación
-es 1 cuando tienes tu función sigmoidea g(z) ≥ 0,5. Eso sólo es cierto cuando la función
-z que le pasas es a su vez mayor que 0:
+Como se desea un valor entre 0 y 1 para la clasificación binaria, la clasificación es 1 cuando tienes tu función sigmoide $g(z) ≥ 0,5$. Eso sólo es cierto cuando la función
+$z$ que le pasas es a su vez mayor que 0:
 $$0 ≤ θ_0 + θ_{1}x_{1} + θ_{2}x_2$$
 Puedes reescribir esta ecuación y resolver el valor de nuestro $x_2$ en consecuencia:
 $$x2 ≥\frac{−θ_0}{θ_2}+\frac{−θ_1}{θ_2}x1$$
-Esta ecuación tiene la misma forma que una recta y = b + mx, donde podemos resolver computacionalmente
-la pendiente y el intercepto para construir la función que determina el límite de decisión
-límite:
-$$pendiente = - x_1/x_2 = - 137 . 9/163 . 4$$
-$$intercepción = - b/x_2 = - 437 . 2/163 . 4$$
-Esto se puede calcular directamente desde el objeto modelo logístico:
+Esta ecuación tiene la misma forma que una recta $y = b + mx$, donde podemos resolver computacionalmente
+la pendiente y el intercepto para construir la función que determina el límite de decisión límite:
+$$\text{pendiente} = - θ_1/θ_2 = - 137.9/-163.4=0.843$$
 
+
+
+
+$$\text{intercepto} = - b/θ_2 = - 437.2/-163.4=2.675$$
+Esto se puede calcular directamente desde el modelo logístico:
+
+```{r}
+knitr::kable(head(iris))
 slope.iris <- coef(iris.logistic)[2]/(-coef(iris.logistic)[3])
-int.iris <- coef(iris.logistic)[1]/(-coef(iris.logistic)[3])
-pendiente.iris
-## Sepal.Width
-## 0.8440957
+int.iris<- coef(iris.logistic)[1]/(-coef(iris.logistic)[3])
+slope.iris
 int.iris
-## (Intercepción)
-## 2.675511
-A continuación, puede trazar esto sobre sus datos y ver cómo las clases se presentan, como se ilustraen la **Figura 4-12**
+```
+
+A continuación, puede trazar esto sobre sus datos y ver cómo las clases se presentan, como se ilustra en la **Figura 4-12**
+
+```{r}
+#figura 4-12
+iris.binary$binary[iris.binary$binary == 0] <- 2
+plot(Sepal.Length ~ Sepal.Width, data = iris.binary, pch = (binary), main = "Iris Flower Sepal Length vs Sepal Width", xlab = "Sepal Width",
+
+ylab = "Sepal Length")
+
+abline(a = int.iris, b = slope.iris)
+```
+
+Ahora tiene una ecuación que ayuda a determinar cómo separar las especies de flores de iris que tenemos. Todas las flores del conjunto de datos que tengan un valor por debajo de la línea de $y = 2.68 + 0.844 × \text{(Ancho del sépalo)}$ se clasificarán en consecuencia.
+
+### <span style="color:#3c55b3">Clasificación multiclase</span>
+
+Si quiere encontrar las divisiones en sus datos que definen múltiples clases y no sólo una clasificación binaria, necesita utilizar la clasificación multiclase. Este enfoque es ligeramente diferente, ya que básicamente está aplicando el mismo esquema de clasificación binaria que ha estado haciendo hasta ahora, pero está comparando la clase que le interesa frente a todo lo demás.
+
+```{r}
+multi <- data.frame(x1 = c(0.03, 0.24, 0.21, 0, 0, 0.23, 0.6, 0.64, 0.86, 0.77), x2 = c(0.07, 0.06, 0.19, 1.15, 0.95, 1,0.81, 0.64, 0.44, 0.74), lab = c(1, 1, 1, 2, 2, 2, 3, 3,3, 3))
+plot(x2 ~ x1, pch = lab, cex = 2, data = multi,main = "Multi-Class Classification",xlab = "x", ylab = "y")
+
+```
+
+Hay tres clases distintas de datos, y usted quiere encontrar algún tipo de líneas que las dividan en sus propias categorías, de forma muy parecida a como lo hizo en el caso binario. En esencia, esto se reduce a nuestra simple prueba binaria, pero se cambia el grupo con el que se compara. Esto se llama una prueba "uno contra todos" o "uno contra muchos", en la que se prueban tres casos: triángulos contra resto, círculos contra resto y cruces contra resto, como se muestra en la Figura 4-14:
+````{r}
+par(mfrow = c(1, 3))
+multi$lab2 <- c(1, 1, 1, 4, 4, 4, 4, 4, 4, 4) 
+plot(x2 ~ x1, pch = lab2, cex = 2, data = multi,main = "Multi-Class Classification",xlab = "x", ylab = "y")
+multi$lab3<- c(4, 4, 4, 2, 2, 2, 4, 4, 4, 4) 
+plot(x2 ~x1, pch = lab3, cex = 2, data = multi,main = "Multi-Class Classification",xlab = "x", ylab = "y")
+multi$lab4 <- c(4, 4, 4, 4, 4, 4, 3, 3, 3, 3) 
+plot(x2 ~ x1, pch = lab4, cex = 2, data = multi,main="Multi-Class Classification",xlab = "x", ylab = "y")
+```
+
+En un enfoque de clasificación uno contra varios, se utiliza un límite de decisión para clasificar los datos de un tipo o clase frente a todos los demás tipos o clases. A continuación, se hace lo mismo con el resto de los tipos o clases de los datos hasta que se dispone de una serie de límites de decisión que se pueden utilizar para tipificar los datos en consecuencia. Así, para el ejemplo de la Figura 4-14, se calculan (en el gráfico de la izquierda) los círculos frente al resto de los datos, y luego se calculan los triángulos frente al resto de los datos (gráfico del medio) y, finalmente, las cruces frente al resto de los datos(gráfico de la derecha). Al dividir un problema de tres clases en tres problemas de dos clases, puede encontrar más fácilmente un único límite de decisión para cada gráfico y luego combinar esos límites de decisión para un modelo final.
+
+
+En este caso, se recurre a la función `multinom()` de la biblioteca `nnet`. Se utiliza para pasar un caso multinomial que es básicamente lo mismo que se ha hecho para el caso binario simple, pero con tres valores en lugar de dos. Esta metodología puede aplicarse para más de tres categorías:
+
+```{r,echo=TRUE}
+require(nnet) 
+multi.model<-multinom(lab~x2 + x1, data = multi, trace = F)
+multi.model
+```
+
+De nuevo, sin embargo, necesita hacer el cálculo especial para las pendientes e interceptos de los límites de decisión basados en la salida de este modelo. Puede aplicar la misma matemática que antes, pero tiene que aplicarla a cada una de las ecuaciones del modelo. A continuación, puede trazar las líneas límite de decisión, como se ilustra en la Figura 4-15:
+Observe que tiene dos líneas para separar las tres categorías:
+Dos líneas que separan tres clases de datos
+
+```{r}
+multi.int.1<- coef(multi.model)[1]/coef(multi.model)[3] 
+multi.slope.1<- -coef(multi.model)[5]/coef(multi.model)[3]
+
+multi.int.2 <- -coef(multi.model)[2]/coef(multi.model)[4] 
+multi.slope.2 <- -coef(multi.model)[6]/coef(multi.model)[4]
+
+plot(x2 ~ x1, pch = lab, cex = 2, data = multi,main = "Multi-Class Classification",xlab = "x", ylab = "y")
+abline(multi.int.1, multi.slope.1) 
+abline(multi.int.2, multi.slope.2)
+```
+
+
+### <span style="color:#3c55b3">Regresión logística con caret</span>
+
+El paquete `caret` hace que los problemas de regresión logística sean muy sencillos para ejemplos más complejos que los que hemos estado haciendo hasta ahora. El uso de `caret` es bastante sencillo, aunque para algunos métodos de aprendizaje automático en particular, pueden estar justificadas algunas optimizaciones y ajustes para lograr los mejores resultados posibles. A continuación se muestra un ejemplo de cómo se puede realizar una operación con `caret`:
+
+```{r}
+require(caret)
+data("GermanCredit")
+Train<-createDataPartition(GermanCredit$Class, p = 0.6, list = FALSE) 
+training<- GermanCredit[Train, ]
+testing <- GermanCredit[-Train, ]
+mod_fit<- train(Class ~ Age + ForeignWorker+Property.RealEstate + Housing.Own + CreditHistory.Critical, data = training, method = "glm",family = "binomial")
+predictions<-predict(mod_fit, testing[, -10]) 
+knitr::kable(table(predictions, testing[, 10]))
+```
+
+Este sencillo ejemplo utiliza datos del conjunto de datos `GermanCredit` y muestra cómo se puede
+puede construir una matriz de confusión a partir de un objeto de entrenamiento `caret`. En este caso, el ajuste no parece
+no parece muy bueno, porque alrededor del 50% de los datos parecen estar clasificados incorrectamente.
+Aunque `caret` ofrece algunas formas estupendas de afinar cualquier método de aprendizaje automático
+método de aprendizaje automático en el que esté interesado, también es bastante flexible a la hora de cambiar los métodos de aprendizaje automático. Simplemente editando la opción de método, puede especificar uno de los otros 12 algoritmos de regresión logística para pasar al modelo, como se muestra aquí:
+```{r}
+mod_fit<- train(Class ~ Age + ForeignWorker + Property.RealEstate +Housing.Own + CreditHistory.Critical, data = training,
+method = "LogitBoost",
+family = "binomial")
+predictions <- predict(mod_fit, testing[, -10])
+knitr::kable(table(predictions, testing[, 10]))
+```
+
+
+
+
+
