@@ -220,6 +220,7 @@ plot(x = logic$x1, y = logic$x2, pch = logic$OR, cex = 2,
  1.5))
 
 ```
+
 Estos gráficos usan triángulos para indicar cuando las salidas son $1$ (VERDADERO), y círculos para los que las salidas son $0$ (FALSO). En nuestra discusión sobre regresión logística, básicamente estábamos encontrando algún tipo de línea que separara estos datos en puntos rojos en un lado y puntos negros en el otro. Recuerde que esta línea de separación se llama límite de decisión y siempre ha sido una línea recta. Sin embargo, no podemos usar una línea recta para intentar clasificar puertas lógicas más complicadas como $XOR$ o $XNOR$.
 
 En forma tabular, como hemos visto con las funciones $AND$ y $OR$, las funciones $XOR$ y $XNOR$ toman entradas de $x1$, $x2$ y nos dan una salida numérica de la misma manera, como se muestra en la Figura 5-9:
