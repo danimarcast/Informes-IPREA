@@ -183,10 +183,11 @@ R es un lenguaje programación de código abierto gratuito que tiene su legado e
 La popularidad de R ha crecido exponencialmente en los últimos años. La web está llena de información, tutoriales y cursos en los cuales se puede aprender dicho lenguaje, de hecho, el paquete `swirl` nos enseña a usar R desde la misma consola. Además, R tiene grandes herramientas para la accesibilidad y reproducción de trabajo, distintos paquetes, entre ellos `shiny`, permiten crear aplicaciones web interactivas
 que pueden ser utilizados por no expertos para interactuar con conjuntos de datos complejos sin la necesidad de conocer o incluso instalar R.
 
-El entorno de desarrollo integrado más popular es sin duda R studio
+El entorno de desarrollo integrado más popular es sin duda Rstudio
 
 
-![](C:\Users\Samsung\Desktop\R\rstudio.png){width=500px}
+![Figura 1-4. R Studio es un entorno de desarrollo integrado (IDE) gratuito para R que es
+muy estable y fácil de usar para los nuevos en el lenguaje](https://raw.githubusercontent.com/Semillero-IPREA/Informes-IPREA/main/imagenes/figura1-4.png?token=ASRWCNN6K2UBNS7EAUSRHDLAJQKOA)
 
 El libro en el que nos estamos basando está hecho en R Markdown, un lenguaje ligero que puede convertir a todo tipo de formas para mostrar en la web o renderizar en archivos PDF. Es una excelente manera de compartir código mediante la publicación en la web o para redactar documentación profesional. 
 Algunos paquetes importantes de R y que es importante mencionar son `dplyr` para manipular datos de una manera intuitiva y `lubridate` que es una forma poderosa de realizar manipulaciones en formato de fecha y hora complicados datos.
@@ -512,7 +513,7 @@ $f(x)=\dfrac{1}{1+e^{-x}}$
 
 Entonces para valores negativos menores que $-5$, la función es $0$. Para valores positivos $x$ mayores que $5$, la función es $1$. Si tuviéramos un conjunto predefinido de pesos para cada nodo en la red neuronal, podríamos tener una imagen que se parece a la siguiente Figura.
 
-![](C:\Users\Samsung\Desktop\R\red.png)
+![Figura 2-10. Un ejemplo de red neuronal representada en un diagrama que se lee de izquierda a derecha](https://raw.githubusercontent.com/Semillero-IPREA/Informes-IPREA/main/imagenes/figura2-10.png?token=ASRWCNOQIQ5H6KLJTFDSBXTAJQKOK)
 
 Comenzamos con las entradas $X1$, $X2$ y el nodo de polarización que es solo una constante aditiva. Calculamos todos estos en el círculo vacío, esto es un nodo de cálculo. El cálculo que realizamos es poner todas estas cosas en una función de activación, que casi siempre es una función sigmoide. La salida de la función sigmoide es el resultado de la red neuronal.
 
