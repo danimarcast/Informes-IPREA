@@ -1,0 +1,403 @@
+---
+title: <span style="color:#3c55b3">6. Métodos basados en árboles</span>
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library("knitr")
+```
+
+
+
+<div style="text-align: justify">
+
+
+En el mundo del aprendizaje automático, los métodos basados en árboles son muy útiles.
+Son relativamente simples para explicar y simples para visualizar. En algunos casos con modelos de aprendizajes automático (redes neuronales notablemente complejas), el modelo entrenado puede ser efectivamente una caja negra cuyos trabajos internos son muy complejos como para poder darles una explicación simple. Los modelos basados en árboles, por otra parte, pueden ser mucho más intuitivos para una persona promedio.
+
+En este capítulo, vamos a mirar cómo funcionan los modelos basados en árboles a un alto nivel al enfocarnos primero en árboles de decisión. Luego nos sumergiremos en la mecánica básica de cómo funcionan y algunos atributos positivos y negativos asociados con ellos. También tocaremos diferentes tipos de modelos basados en árboles como árboles de inferencia condicional y bosques aleatorios. Para dar un previo, los árboles de decisión son tan simples como proposiciones "si-entonces" relacionadas con los datos. 
+Los árboles de inferencia condicional funcionan de manera similar pero con fundamentos estadísticos ligeramente diferentes. Los bosques aleatorios pueden ser complicados matemáticamente, pero en general se reduce a una colección de diferentes modelos de árboles a los que se les pide que voten sobre un resultado. Todos estos tipos se pueden utilizar para modelos de regresión (árboles de regresión) o modelos de clasificación (árboles de clasificación). Muchos pueden usarse para ambos propósitos y son llamados modelos de árboles de clasificación y regresión *(CART)*.
+
+## <span style="color:#3c55b3">Un modelo de árbol simple</span>
+
+Empecemos por mirar un ejemplo de un conjunto de datos que describe mis carreras en bicicleta este año. Podríamos tener una variedad de parámetros relacionados con el clima. Si tuviera una muestra de datos lo suficientemente robusta y tuviera una carrera de ciclismo en la que conociera el pronóstico en un grado razonable, ¿debería esperar un buen o mal desempeño en mi carrera? La *tabla 6-1* enumera algunos factores climáticos diferentes y mi resultado de la correspondiente carrera.
+
+```{r}
+Week = c(1,2,3,4,5,6,7,8,9,10,11,12,13);
+SkyCondition = c('cloudy','rainy','sunny','cloudy','cloudy','rainy','rainy','cloudy','sunny','sunny','rainy','sunny','sunny');
+WindSpeed = c('low','low','high','high','low','high','high','high','low','low','low','low','high');
+Humidity = c("high",'normal','normal','high','normal','high','normal','normal','high','normal','normal','high','high');
+GoodResults = c('yes','yes','yes','yes','yes','no','no','yes','no','yes','yes','no','no');
+Bikerace = data.frame(Week,SkyCondition,WindSpeed,Humidity,GoodResults)
+knitr::kable(Bikerace)
+```
+
+Supongamos que la carrera de la semana 14 tendrá el siguiente clima:
+
+* Condición del cielo: Lluvioso
+* Velocidad del viento: Baja
+* Humedad: Alta
+
+Lo que podríamos hacer, si estos datos estuvieran en una hoja de cálculo, sería filtrar nuestros datos en estas condiciones exactas y ver cómo se ven los resultados. Un modelo basado de árboles hace basicamente la misma cosa. Realiza subconjuntos de datos según ciertos criterios y luego construye un árbol de modo que cuando tengamos nuevos datos, siga las ramas del árbol hasta un resultado. La *Figura 6-1* toma los datos de la *tabla 6-1* y los representa como un árbol, con la primera división en la variable de condición del cielo.
+
+La *figura 6-1* muestra tres hojas en el árbol: Condición del cielo = lluvioso, condición del cielo = nublado, y condición del cielo = soleado. Para cada uno de estos subconjuntos, se puede ver cómo se visualizan los datos. La respuesta que se quiere modelar es si voy a tener un buen resultado en mi carrera. Un árbol de decisión examina estos subconjuntos y examina si la variable *Resultado* contiene toda una clase en particular. Para las carreras nubladas, tengo un buen resultado siendo *sí* para cada una. Esto indica que el subconjunto es puro y que no es necesario dividirlo más. Sin embargo, los subconjuntos *soleado* y *lluvioso* tienen una combinación de resultados de *sí* y *no*. Para obtener un subconjunto con mayor pureza lo mejor es dividirlos aun más. 
+
+
+La pureza se define como la cantidad de ejemplos positivos o negativos que tiene que está tratando de modelar (en este caso, Resultado) de los valores totales en la tabla. Se desea continuar dividiendo el árbol hasta que tenga tantas hojas puras como sea posible. 
+
+![*Figura 6-1.Un ejemplo de cómo un árbol de decisión crea subconjuntos de los datos.*](https://raw.githubusercontent.com/Semillero-IPREA/Informes-IPREA/main/imagenes/Figura6-1.PNG)
+
+Como se muestra en la *Figura 6-2*, al dividir aún más los subconjuntos lluviosos y soleados (en este caso por viento y humedad, respectivamente), ahora hay cinco puntos terminales del árbol. Se puede leer este árbol como una proposición "si-entonces", comenzando por la parte superior. Primero, revisemos lo que se quiere predecir. Queremos saber si voy a tener un buen resultado en carrera si llueve, hay poca velocidad del viento y mucha humedad. Comenzamos en la parte superior del árbol y nos movemos a lo largo del camino de Condición del cielo = lluvia, y luego dividimos cuando la velocidad del viento sea baja. Eso nos lleva a un depósito que tiene todos sus datos con un buen estado de resultado de sí. Entonces, según las condiciones que deseaba predecir inicialmente, ¡Mediante el uso de un árbol de decisiones, puede predecir que tendré un buen resultado en la carrera!
+
+
+
+![*Figura 6-2. Este árbol de decisión se divide aún más en función de la velocidad del viento o la humedad para crear más tablas (u hojas) resultantes en los extremos del árbol que tienen una mayor pureza que antes.*](https://raw.githubusercontent.com/Semillero-IPREA/Informes-IPREA/main/imagenes/Figura6-2.PNG?token=ASRWCNMCEYQEBCH25745CS3AJ7MHQ) 
+
+## <span style="color:#3c55b3">Decidir cómo dividir árboles</span>
+
+En el ejemplo anterior, comenzamos con un conjunto de datos que se quería modelar. Había muchas características y una respuesta contra la que deseaba modelar (resultado en función de las condiciones del cielo, la velocidad del viento y la humedad). Se comenzó observando cómo funciona un árbol de decisiones al dividirse en la variable *Condición del cielo*, pero ¿por qué elegimos ese? ¿Por qué no elegir una variable diferente para dividir en su lugar? Un árbol de decisiones quiere maximizar la *"pureza"* de sus divisiones. Echemos un vistazo a la *Figura 6-3*, que revisa el primer corte del árbol de antes.
+
+![*Figura 6-3. Al dividir árboles de decisión, desea que los nodos de hojas sean lo más puros posible (en este caso, Cloudy es la hoja más pura, seguida de Sunny, luego Rainy; necesitamos dividir nuestro árbol más en los nodos de hojas impuras para obtener un mejor árbol modelo)*](https://raw.githubusercontent.com/Semillero-IPREA/Informes-IPREA/main/imagenes/Figura6-3.PNG?token=ASRWCNI5EAKXWIA3274BTBLAJ7MJS)
+
+En la *Figura 6-3*, la hoja nublada comienza al 100%. Eso significa que el 100% de los datos en ese corte son todos datos sí y no requiere más subconjuntos para llegar a un conjunto puro. Sin embargo, las hojas soleadas y lluviosas requieren dividirse. Comparemos con comenzar con un árbol basado en la variable Velocidad del viento, como se muestra en la *Figura 6-4*.
+
+![*Figura 6-4. Dividir los datos en función de la velocidad del viento no produce resultados con un factor de pureza elevado*](https://raw.githubusercontent.com/Semillero-IPREA/Informes-IPREA/main/imagenes/Figura6-4.PNG?token=ASRWCNM3VJWM3NTJCMRODPTAJ7MLC)
+
+En la *Figura 6-4*, ninguna de las hojas iniciales es pura. Una hoja es 75% pura y la otra 50% pura. Ambas requieren divisiones adicionales de los datos. Se desea lograr la mayor pureza posible, y tener un árbol con una hoja que sea 100% pura. Prácticamente todos los algoritmos de árboles de decisión tendrán esta funcionalidad incorporada, por lo que nunca tendrás que preocuparte por determinar una división inicial de los datos, pero es una buena práctica saber cómo funcionan los mecanismos subyacentes de los algoritmos del árbol.
+
+### <span style="color:#3c55b3">Entropía de árboles y ganancia de información</span> 
+
+Una manera más matemática de representar la pureza de cada subconjunto de un árbol es midiendo su entropía. Esta es una manera de medir que tan probable es obtener un elemento positivo si se selecciona al azar de un subconjunto particular. La ecuación de la entropía es la siguiente
+
+$$H(S)= -p_{+}\log_{2}p_{+}-p_{-}\log_{2}p_{-}$$
+Esta ecuación afirma que la entropía para un conjunto de datos dados es una función de cuantos casos postivos $p_{+}$ tenemos en total, multiplicando el logaritmo (note la base dos) del mismo valor, y restandole el número de casos negativos de la misma forma. Recordemos que un caso positivo será un "si", y un resultado negativo será un "no" en el ejemplo original de datos en la tabla 6-1. Una buena manera de ver esta acción es considerar como se puede aplicar al árbol que usted dividió en *Sky Condition´*
+
+\begin{align}
+H(rainy) &=-\frac{2}{4}\log_{2}\frac{2}{4}-\frac{2}{4}\log_{2}\frac{2}{4}=1 \\
+H(cloudy) &=-\frac{4}{4}\log_{2}\frac{4}{4}-\frac{0}{4}\log_{2}\frac{0}{4}=0 \\
+H(sunny) & =-\frac{2}{5}\log_{2}\frac{2}{5}-\frac{3}{5}\log_{2}\frac{3}{5}=0.97 \\
+\end{align}
+
+Los valores que se obtienen para *Rainy* y *Sunny* ambos son 1. Esto significa que la muestra es lo mas impura que se puede obtener, y se requerirá más división, donde la muestra para *Cloudy* sea totalmente pura, y la entropía para esto será $0$. Nos estamos saliendo con la nuestra con un truco matemático en este caso, porque técnicamente hablando, el logaritmo de cero debe ser menos infinito, pero estamos "cancelando" esto multiplicando por cero de cualquier forma.
+
+Aunque la entropía de las hojas individuales es buena, el algoritmo determina la característica más útil para dividir, primero encontrando las características con mayor *ganancia*. Ganancia es la medida de qué tan relevante es una característica en una escala de 0 (menos útil) a 1 (más útil) y está definida por
+
+\begin{equation}
+Gain = H(S)-\sum \frac{S_{v}}{S}H(S_{v})
+\end{equation}
+
+Donde $V$ son los posibles valores de las características, $S$ es el número del total de puntos en la hoja, y $S_{v}$ es el subconjunto para el cual tenemos nuestros posibles valores de la característica. Vamos a correr esto especificamente en la rama que se divide por la característica *Wind Spped*:
+
+\begin{align}
+H(wind) &= -\frac{9}{14}\log_{2}\frac{9}{14}-\frac{5}{14}log_{2}\frac{5}{14}=0.94 \\
+H(low) &= -\frac{5}{7}\log_{2}\frac{5}{7}-\frac{2}{7}\log_{2}\frac{2}{7}=0.86 \\
+H(high) &= -\frac{3}{6}\log_{2}\frac{3}{6}-\frac{3}{6}\log_{2}\frac{3}{6}=1 \\
+Gain(Wind)&= 0.94-\frac{8}{14}\dot 0.81-\frac{6}{14}\dot 1 =0.049
+\end{align}
+
+Una manera fácil de hacer esto en R es usando la función `varImpPlot()` de la paquetería `caret`. Aunque esta función en específico usa una computación matemática ligeramente distinta que en *Gain*, el resultado es el mismo. Con esta gráfica podemos ver que *Sky Condition* es el factor más importante, seguido por *Humidity* y luego *Wind Speed*. Si se tiene un conjunto de datos con muchas más variables y quiere ver cuáles son las más imporantes para un algoritmo de árbol en particular, se puede usar la función `VarImpPlot()` para obtener una mirada rápida de cómo se divide el árbol de arriba hacia abajo 
+
+```{r, message=FALSE, fig.align="center"}
+library(caret)
+library(randomForest)
+fit <- randomForest(factor(GoodResults) ~ ., data = Bikerace[2:5])
+varImpPlot(fit)
+```
+
+
+## <span style="color:#3c55b3">Ventajas y desventajas de los árboles de decisión</span> 
+
+Hasta ahora hemos visto un buen atributo de los árboles de decisión: son fáciles de explicar. Para empezar con una muestra de datos, somos capaces de representarla en un árbol y caminar a través de sus divisiones en los datos para obtener una conclusión. Cuando se entrena un modelo basado en árboles, la mecánica subyacente utilizará la misma funcionalidad, así pues, es facil explicar cómo funciona el modelo. 
+
+También hemos visto como los árboles manejan datos irrelevantes automáticamente (es decir que la ganancia es cero). Esto elimina la necesidad de ser cuidadoso determinando cuales características quiere para el modelo porque el árbol seleccionará el mejor atributo para usted. La selección de característica es una gran parte de la mayoría de los procesos de modelamiento, y al tener modelos basados en arboles haciendo esto por usted, hacen que esto sea un dolor de cabeza menos.
+
+Otra ventaja de los árboles es que son rápidos computacionalmente después de que ellos han sido ajustados. De hecho, después de que los árboles han sido ajustados, el modelo resultante tiende a ser bastante sucinto. Esto no solo ayuda a la explicación, sino que también mantiene al modelo relativamente sencillo. Es fácil decir cuando un árbol está sobreajustado, cuando se vuelve demasiado especifico o si existen demasiadas ramas pequeñas en el modelo. Finalmente, los modelos basados en árboles pueden también manejar datos faltantes o atípicos, una vez más, nos ahorraría el dolor de cabeza de tener que hacer numerosos procedimientos de cuarentena que pueden ser más comunes con otros modelos.
+
+
+### <span style="color:#3c55b3">Sobreajuste de árboles</span>  
+
+Las desventajas de los árboles son que pueden ser muy sensibles a condiciones iniciales o variaciones en los datos. Ya que estamos dividiendo en atributos y rangos de valores probables en nuestros datos, si alteramos ligeramente los valores, podemos estar eliminando ramas enteras de nuestro datos. Otro problema con los árboles es que ellos siguen divisiones de datos alineadas con los ejes. Si tenemos un árbol para algunos datos de ejemplo, donde la salida es como sigue, debemos tener la correspondiente gráfica de nuestros datos, que va a lucir como la *figura 6-5*
+
+
+* Si $X$ es menor que $2.5$, el resultado es $25$
+* Si $X$ es mayor que $2.5$, y $Y$ es menor que $15$, el resultado es $9$
+* Si $X$ es mayor que $2.5$, y $Y$ es mayor que $15$, el restultado es $3.14$
+
+Podemos ver inmediatamente que los árboles dividen los datos en cajas, dado que están diseñados en relación con las características. Esto funciona mejor para algunas versiones de los datos que para otras versiones. Los datos que se dividen facilmente en cajas en relación a los ejes que usted esta dividiendo funcionarán mejor, como el caso del conjunto de datos `iris` ilustrado en la figura *6-6*
+
+<center>
+
+![*Figura 6-5. Los árboles de decisión funcionan de forma diferente a otros algoritmos de aprendizaje automático*](https://raw.githubusercontent.com/Semillero-IPREA/Informes-IPREA/main/imagenes/Figura6-5.PNG){width="700"}
+
+
+![*Figura 6-6. Los árboles de decisión pueden clasificar datos fácilmente, como se ilustra con el conjunto de datos iris*](https://raw.githubusercontent.com/Semillero-IPREA/Informes-IPREA/main/imagenes/Figura6-6.PNG){width="800px"}
+
+</center>
+
+Sin embargo, los datos puede venir en diferentes formas y tamaños. Además, el conjunto de datos `iris` es una ejemplo de datos que no pueden ser separados solo en dos o tres cajas. A diferencia de otros algoritmos que pueden definir una línea donde los datos que están en un lado es una clase A y todos los datos del otro lado son la clase B, los algoritmos basados en árboles deben dibujar cajas para dividir los datos. Para aproximar una línea o una curva, necesita muchas cajas. Lo que esto significa para su árbol es que usted está agregando más y más ramas y aumentando la complejidad de este, como se representa en la *Figura 6-7*
+
+<center>
+
+![*Figura 6-7. Utilizando el mismo conjunto de datos iris, pero trazando datos diferentes, se encuentra una situación en la que una o dos cajas no podrían no ajustarse tan bien a los datos*](https://raw.githubusercontent.com/Semillero-IPREA/Informes-IPREA/main/imagenes/Figura6-7.PNG){width="800px"}
+
+</center>
+
+Usando muchas más cajas para dividir los datos en dos mitades probablemente puede sobreajustar los datos que está tratando de usar para un modelo de regresión o clasificación, como se muestra en la *Figura 6-8*
+
+<center>
+
+![*Figura 6-8. La clasificación de datos con un enfoque de árbol puede ser susceptible al sobreajuste, como se ve en los muchos recuadros pequeños de este gráfico*](https://raw.githubusercontent.com/Semillero-IPREA/Informes-IPREA/main/imagenes/Figura6-8.PNG){width="800px"}
+
+</center>
+
+Como hemos visto hasta ahora, se construyen modelos basados en árboles empezando con un atributo de alta ganancia y luego dividiendo en los siguientes atributos de alta ganancia. En el ejemplo de la carrera de ciclismo, al principio del capítulo, hay suficientes ejemplos de cómo construir un árbol que nos dé muestras puras de cada hoja del cultivo de árboles al final del ejercicio de cultivo. Si se tuviera un conjunto de datos que requiriera que se agregaran más y más divisiones al árbol, el modelo se volveria muy específico para los datos con los que lo estamos entrenando.
+
+Si tomamos una muestra de datos, la dividimos en datos de entrenamiento y datos de prueba, y luego hacemos crecer el árbol en el modelo de entrenamiento, necesitaremos encontrar un punto de corte para el crecimiento de este. De otra forma, crece demasiado, y no funcionará bien frente a los datos de prueba porque el árbol de entrenamiento se ha vuelto muy especifico para los datos de entrenamiento y no es capaz de ser generalizado, como se ilustra en la *Figura 6-9*
+
+<center>
+
+![*Figura 6-9. Los métodos basados en árboles funcionan bien con los datos de entrenamiento, pero disminuyen su rendimiento con los datos de prueba.*](https://raw.githubusercontent.com/Semillero-IPREA/Informes-IPREA/main/imagenes/Figura6-9.PNG){width="600px"}
+
+</center>
+
+### <span style="color:#3c55b3">Podando árboles</span>  
+
+Para evitar que un modelo basado en árboles se sobreajuste, debe podar las hojas menos importantes del árbol. Puede hacer esto mediante el uso del paquete `rpart`. Primero vamos a hacer crecer un árbol usando la función `rpart()`. Esta es una función que de forma recursiva particiona los datos para formar un modelo basado en árboles. Primero, echemos un vistazo rápido a los datos. Modelarás datos de automóviles de la edición de 1990 de Consumer Reports
+
+```{r}
+library(rpart)
+knitr::kable(head(cu.summary))
+```
+
+Para cada vehículo en el conjunto de datos, hay características relacionadas con ellos que podrían interesar al consumidor al realizar una compra informada. Las características incluyen Precio (`Price`), que es el costo del automóvil en dólares estadounidenses; País de origen (`Country`); Escala de confiabilidad de "mucho peor" a "promedio" a "mucho mejor" (`Reliability`); Kilometraje en unidades de galones de combustible consumidos por milla (`Mileage`); y de qué tipo es el automóvil (compacto, grande, mediano, pequeño, deportivo,camioneta) (`Type`)
+
+Hagamos crecer un árbol basado en estos datos usando la función `rpart()` (*Figura 6-10*):
+
+```{r, fig.align="center"}
+#figura 6-10
+fit <- rpart(
+ Mileage~Price + Country + Reliability + Type,
+ method="anova", #method="class" for classificaiton tree
+ data=cu.summary
+ )
+plot(fit, uniform=TRUE, margin=0.1)
+text(fit, use.n=TRUE, all=TRUE, cex=.8)
+```
+
+Específicar en la función `rpart()`, el `method = option` le permite cambiar entre usar un árbol de regresión y un árbol de clasificación. En este caso, está modelando la eficiencia de combustible de un vehículo, como lo indica la variable `Mileage`, que es un valor numérico, por lo que desea un modelo de regresión como resultado. Puede ver el resultado de esto en la *Figura 6-10*. Leyendo de arriba hacia abajo, primero divide el precio, si el precio es mayor o igual a $9,446. Luego, se divide en `Type`. A continuación, para la rama más a la izquierda, vuelva a dividir en `Type`, y para la rama más a la derecha en la parte inferior, vuelva a dividir en `Price`. `rpart` indica qué porcentaje de cada rama se divide y cuántos puntos de datos hay en cada división.
+
+La *Figura 6-11* muestra este radio de error como una función de la cantidad de divisiones que se tiene
+
+```{r,fig.align="center", message=FALSE}
+#figura 6-11, 6-12
+rsq.rpart(fit)[1]
+```
+
+El uso de la función `rsq.rpart()` nos da dos gráficos. La *Figura 6-12* muestra la precisión del modelo basado en árbol en comparación con el número de divisiones en el árbol. La *Figura 6-12* nos muestra el error relativo también en función del número de divisiones en el árbol. Parece bastante claro a partir de estas dos parcelas que el árbol está bastante bien sintonizado en las divisiones 2 y 3, y que agregar otra división para obtener un total de 4 no parece agregar mucho valor al modelo.\
+
+Para limpiar el modelo y asegurarse de que no esté sobreajustado, pode las hojas menos útiles del árbol. Una forma más precisa de saber qué partes podar es observar el parámetro de complejidad de un árbol, a menudo denominado "CP", que puede ver en la *Figura 6-13*:
+
+
+
+```{r,fig.align="center"}
+#figura 6-13
+plotcp(fit)
+```
+
+El parámetro de complejidad es la cantidad en la cuál dividir ese nodo de árbol mejorará el error relativo. En la *Figura 6-13*, dividirlo una vez mejoró el error en 0.29, y luego menos para cada división adicional. La línea de puntos en el gráfico se genera mediante estimaciones de error dentro del modelo y señala que desea un árbol que tenga una cantidad de divisiones debajo de esa línea, pero tal vez no demasiado más allá de ella para evitar el sobreajuste.
+El eje y también es el error relativo para un nodo dado. Puede ver en el gráfico que el error relativo se mínimiza en un tamaño de árbol de 4 (eje x superior) y el parámetro de complejidad está por debajo del umbral de la línea de puntos. Tenga en cuenta que el tamaño del árbol es el número de divisiones en los datos, no el número de hojas terminales. La regla general a seguir es que seleccione el primer parámetro de complejidad que se encuentra debajo de la línea de puntos. En este caso, sin embargo, puede ver que hay ganancias menores en la evaluación de errores en el siguiente paso en el tamaño del árbol en 4, o un parámetro de complejidad igual a 0.017.
+
+Puede extraer estos valores programando desde el modelo `cptable`, de la siguiente manera:
+
+```{r}
+fit$cptable
+```
+
+Puede ver que el error se mínimiza con un tamaño de árbol de 4. Por lo tanto, usemos el valor 4 en `xerror` en la función `prune()` (*Figura 6-14*) para cortar cualquier división más allá de ese nivel de complejidad:
+
+```{r,fig.align="center"}
+fit.pruned <- prune(fit, cp = fit$cptable[which.min(fit$cptable[,
+"xerror"]), "CP"])
+par(mfrow = c(1, 2))
+plot(fit, uniform = TRUE, margin = 0.1, main = "Original Tree")
+text(fit, use.n = TRUE, all = TRUE, cex = 0.8)
+plot(fit.pruned, uniform = TRUE, margin = 0.1, main = "Pruned Tree")
+text(fit.pruned, use.n = TRUE, all = TRUE, cex = 0.8)
+```
+
+Este ejemplo toma el parámetro de complejidad, `cp`, y lo pasa a la función `prune()` para eliminar efectivamente cualquier división que no haga que el modelo reduzca su error.
+
+
+## <span style="color:#3c55b3">Árboles de decisión para regresión</span>
+
+Hemos cubierto mucho terreno en esta sección con respecto a los árboles de decisión y cómo ajustarlos para obtener el mejor rendimiento. Si desea hacer un modelo de regresión simple usando la función `rpart()` con árboles de decisión, primero necesita hacer crecer el árbol y luego podarlo, como se demuestra aquí:
+
+```{r}
+cu.summary.complete <- cu.summary[complete.cases(cu.summary),]
+data.samples <- sample(1:nrow(cu.summary.complete), nrow(cu.summary.complete) *
+0.7, replace = FALSE)
+training.data <- cu.summary.complete[data.samples, ]
+test.data <- cu.summary.complete[-data.samples, ]
+fit <- rpart(
+Mileage~Price + Country + Reliability + Type,
+method="anova", #method="class" for classification tree
+data=training.data
+)
+fit.pruned<- prune(fit, cp=fit$cptable[which.min(fit$cptable[,"xerror"]),"CP"])
+prediction <- predict(fit.pruned, test.data)
+output <- data.frame(test.data$Mileage, prediction)
+RMSE = sqrt(sum((output$test.data.Mileage - output$prediction)^2) /
+nrow(output))
+RMSE
+```
+
+## <span style="color:#3c55b3">Árboles de decisión para clasificación</span>
+
+Repetir el ejercicio con `rpart()` para la clasificación es trivial. Todo lo que necesita hacer es cambiar la opción `method` de `anova` por `class`, así como cambiar la respuesta que está modelando a una variable actual de `class`:
+
+```{r}
+cu.summary.complete <- cu.summary[complete.cases(cu.summary),
+]
+data.samples <- sample(1:nrow(cu.summary.complete), nrow(cu.summary.complete) *
+0.7, replace = FALSE)
+training.data <- cu.summary.complete[data.samples, ]
+test.data <- cu.summary.complete[-data.samples, ]
+fit <- rpart(Type ~ Price + Country + Reliability + Mileage,
+method = "class", data = training.data)
+fit.pruned <- prune(fit, cp = fit$cptable[which.min(fit$cptable[,
+"xerror"]), "CP"])
+prediction <- predict(fit.pruned, test.data, type = "class")
+knitr::kable(table(prediction, test.data$Type))
+```
+
+
+
+
+## <span style="color:#3c55b3">Árboles de inferencia condicional</span>
+
+Un árbol de inferencia condicional es un tipo de árbol de decisión un poco diferente. Anteriormente vimos cómo hacer crecer y podar un árbol de decisiones haciendo uso de la función `rpart()`.\
+
+Dicha función construye un árbol mediante la selección de características con valores altos relacionados con la obtención de información. En muchos casos es necesario podar esos tipos de árboles para evitar que estén sobreajustados y tengan mucho error por división de árbol.\
+
+En contraste, un árbol de inferencia condicional sigue una lógica similar, pero la forma en la que dividimos el árbol es un poco diferente. Un árbol de inferencia condicional se inclinará más en pruebas estadísticas robustas para una característica determinada para determinar su significación estadística.\
+
+Esto puede verse ilustrado si graficamos un árbol de inferencia de un modelo ajustado usando la función `ctree()` de paquete `party`, como se muestra en la **Figura 6-15:** 
+
+
+```{r, message=FALSE, fig.align="center"}
+#figura 6-15
+library(party)
+fit2 <- ctree(Mileage ~ Price + Country + Reliability + Type,
+data = na.omit(cu.summary))
+plot(fit2)
+```
+
+Como muchos paquetes en R, algunos son mejores para graficar que otros. Aunque hay opciones para hacer que los árboles hechos a partir de `rpart()` luzcan mejor, `ctree()` hace que las imágenes luzcan mejor desde el primer momento. En la **Figura 6-15**, puede ver un árbol que comprende dos características, precio y tipo, que se están dividiendo. Los criterios de división se pueden encontrar en las ramas como siempre, pero hay un nuevo parámetro: el p-valor. Estos son los valores dentro de las burbujas que muestran la función en la que nos dividimos. Un p-valor es una herramienta para saber que tan estadísticamente significativo es algo. La regla que siguen los estadísticos es que un p-valor por debajo de $0.05$ es considerado estadísticamente significativo. No es necesario podar este tipo de árbol en particular porque está construido en los procedimientos estadísticos que seleccionan en primer lugar las características para dividir, lo que ahorra un paso de cálculo en el futuro.\
+
+Del mismo modo, si desea trazar el árbol para un esquema de clasificación, en cambio, todo lo que necesita hacer es proporcionar una variable de respuesta categórica y repetir el mismo procedimiento de graficación, como se muestra en la **Figura 6-16:**
+
+```{r, fig.align="center"}
+#figura 6-16
+fit3 <- ctree(Type ~ Price + Country + Reliability + Mileage,
+data = na.omit(cu.summary))
+plot(fit3)
+```
+
+Si tiene muchas variables categóricas, trazar el árbol puede ser un poco engorroso porque el gráfico incluye valores por defecto que son cero para una división determinada de los datos.
+
+### <span style="color:#3c55b3">Árbol de inferencia condicional - regresión</span>
+
+Correr un modelo de regresión usando árboles de inferencia condicional le resultará familiar. Dado que casi todos los modelos de aprendizaje automático en R siguen el mismo patrón básico de "función(respuesta-características)", no debería sorprendernos que realizar la regresión usando `ctree` siga la misma fórmula:
+
+```{r}
+set.seed(123)
+cu.summary.complete <- cu.summary[complete.cases(cu.summary),
+]
+data.samples <- sample(1:nrow(cu.summary.complete), nrow(cu.summary.complete) *
+0.7, replace = FALSE)
+training.data <- cu.summary.complete[data.samples, ]
+test.data <- cu.summary.complete[-data.samples, ]
+fit.ctree <- ctree(Mileage ~ Price + Country + Reliability +
+Type, data = training.data)
+prediction.ctree <- predict(fit.ctree, test.data)
+output <- data.frame(test.data$Mileage, prediction.ctree)
+RMSE = sqrt(sum((output$test.data.Mileage - output$Mileage)^2)/nrow(output))
+RMSE
+```
+
+### <span style="color:#3c55b3">Árbol de inferencia condicional - clasificación</span>
+
+Realizar un modelo de clasificación en R es fácil. Esto debido a que ya se realizó el proceso con un ejemplo de regresión, todo lo que necesita hacer para un ejemplo de clasificación es cambiar la respuesta que está usando de una numérica a una categórica:
+
+```{r}
+set.seed(456)
+data.samples <- sample(1:nrow(cu.summary), nrow(cu.summary) *
+0.7, replace = FALSE)
+training.data <- cu.summary[data.samples, ]
+test.data <- cu.summary[-data.samples, ]
+fit.ctree <- ctree(Type ~ Price + Country + Reliability + Mileage,
+data = training.data)
+prediction.ctree <- predict(fit.ctree, test.data)
+knitr::kable(table(test.data$Type, prediction.ctree))
+```
+
+## <span style="color:#3c55b3">Bosques aleatorios</span>
+
+Los métodos basados en árboles con los que hemos trabajado hasta ahora han sido todos de un solo árbol. Es decir, la lógica "si-entonces" de comenzar con una característica, dividir en función de los rangos de valores en esa característica y luego moverse hacia abajo en el árbol hasta un resultado final es como funciona un solo árbol de decisión. Una de las formas más avanzadas de aprendizaje automático es un bosque aleatorio. En lugar de cultivar un solo árbol, vamos a cultivar $N$ árboles diferentes. Obtenemos diferentes árboles aleatorizando nuestras entradas al algoritmo que construye los árboles por nosotros.
+
+Cada árbol va a tener algún tipo de salida basada en la división de características en los datos, como hemos visto para los modelos basados en árboles hasta ahora. La diferencia es que tomamos los resultados de cada árbol y contamos cuál salida tiene la mayor cantidad de votos. La salida con más votos se convierte en la salida del bosque. En un ejemplo de clasificación, podríamos tener un grupo de árboles que se ve de la siguiente forma en la **Figura 6-17**
+
+![Figura 6-17. Un ejemplo de como funciona un modelo de bosque aleatorio](https://raw.githubusercontent.com/Semillero-IPREA/Informes-IPREA/main/imagenes/figura6-17.png?token=ASRWCNNFF5Q6CVPZ76Y6N4LAJQEGW)
+
+Tenemos tres árboles, cada uno con una salida de clase A o B. Note que los árboles tienen diferentes características en las que también podrían dividirse. Dado que estás construyendo los árboles desde subconjuntos aleatorios de tus datos iniciales, varios subconjuntos pueden tener diferentes divisiones de parámetros que otros subconjuntos.\
+
+El siguiente paso sería pasar algún tipo de entrada al bosque de tres árboles. Suponga que después de pasar la entrada a cada árbol, obtiene una predicción como esta:
+
+* Árbol 1: A\
+* Árbol 2: B\
+* Árbol 3: A\
+
+Luego, toma un voto mayoritario de las clases que se obtienen de los árboles para obtener la respuesta final del bosque aleatorio. En este caso, la respuesta para el bosque sería A.
+
+### <span style="color:#3c55b3">Bosques aleatorios para regresión</span>
+
+La regresión con bosques aleatorios en R es tan fácil como reemplazar la característica que está modelando como respuesta. Todo lo que necesita hacer en este caso para cambiar de un árbol de inferencia condicional a un bosque aleatorio es cambiar la función que está usando en los datos de entrenamiento, como se demuestra aquí: 
+
+```{r}
+library(randomForest)
+set.seed(123)
+cu.summary.complete <- cu.summary[complete.cases(cu.summary),
+]
+data.samples <- sample(1:nrow(cu.summary.complete), nrow(cu.summary.complete) *
+0.7, replace = FALSE)
+training.data <- cu.summary.complete[data.samples, ]
+test.data <- cu.summary.complete[-data.samples, ]
+fit.rf <- randomForest(Mileage ~ Price + Country + Reliability +
+Type, data = training.data)
+prediction.rf <- predict(fit.rf, test.data)
+output <- data.frame(test.data$Mileage, prediction.rf)
+RMSE = sqrt(sum((output$test.data.Mileage - output$prediction.rf)^2)/
+nrow(output))
+RMSE                                  
+```
+
+### <span style="color:#3c55b3">Bosques aleatorios para clasificación</span>
+
+Del mismo modo, configurar el código en R para la clasificación con bosques aleatorios es tan fácil como antes, pero solo configura la función específicamente para `randomForest()`:
+
+```{r}
+set.seed(456)
+cu.summary.complete <- cu.summary[complete.cases(cu.summary),
+]
+data.samples <- sample(1:nrow(cu.summary.complete), nrow(cu.summary.complete) *
+0.7, replace = FALSE)
+training.data <- cu.summary.complete[data.samples, ]
+test.data <- cu.summary.complete[-data.samples, ]
+fit.rf <- randomForest(Type ~ Price + Country + Reliability +
+Mileage, data = training.data)
+prediction.rf <- predict(fit.rf, test.data)
+knitr::kable(table(test.data$Type, prediction.rf))
+```
+
+
