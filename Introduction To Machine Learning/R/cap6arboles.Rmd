@@ -60,7 +60,7 @@ En el ejemplo anterior, comenzamos con un conjunto de datos que se quería model
 
 ![*Figura 6-3. Al dividir árboles de decisión, desea que los nodos de hojas sean lo más puros posible (en este caso, Cloudy es la hoja más pura, seguida de Sunny, luego Rainy; necesitamos dividir nuestro árbol más en los nodos de hojas impuras para obtener un mejor árbol modelo)*](https://raw.githubusercontent.com/Semillero-IPREA/Informes-IPREA/main/imagenes/Figura6-3.PNG?token=ASRWCNI5EAKXWIA3274BTBLAJ7MJS)
 
-En la *Figura 6-3*, la hoja nublada comienza al 100%. Eso significa que el 100% de los datos en ese corte son todos datos sí y no requiere más subconjuntos para llegar a un conjunto puro. Sin embargo, las hojas soleadas y lluviosas requieren dividirse. Comparemos con comenzar con un árbol basado en la variable Velocidad del viento, como se muestra en la *Figura 6-4*.
+En la *Figura 6-3*, la hoja nublada comienza al 100%. Eso significa que el 100% de los datos en ese corte son todos datos sí y no requiere más subconjuntos para llegar a un conjunto puro. Sin embargo, las hojas soleadas y lluviosas requieren dividirse. Comencemos por comparar con un árbol basado en la variable *Velocidad del viento*, como se muestra en la *Figura 6-4*.
 
 ![*Figura 6-4. Dividir los datos en función de la velocidad del viento no produce resultados con un factor de pureza elevado*](https://raw.githubusercontent.com/Semillero-IPREA/Informes-IPREA/main/imagenes/Figura6-4.PNG?token=ASRWCNM3VJWM3NTJCMRODPTAJ7MLC)
 
