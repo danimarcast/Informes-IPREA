@@ -29,14 +29,14 @@ En el capítulo 1, nos encontramos brevemente con la regresión lineal con un ej
 más que simplemente poner una ecuación en un montón de datos y darlo por terminado. Volvamos a nuestro ejemplo de `mtcars`
 
 
-```{r}
+```{r, fig.align="center"}
 model <- lm(mtcars$mpg ~ mtcars$disp)
 mpg <- predict(model); mpg
 b0 <- round(model$coefficients[1],2); b0
 b1 <- round(model$coefficients[2],2); b1
 ```
 
-```{r}
+```{r, fig.align="center"}
 model <- lm(mtcars$mpg ~ mtcars$disp)
 plot(y = mtcars$mpg, x = mtcars$disp, xlab = "Engine Size (cubic inches)",
  ylab = "Fuel Efficiency (Miles per Gallon)", main = "Fuel Efficiency From
@@ -215,7 +215,7 @@ $$ {y} = b + m_{1} x_{1}^2 $$
 
 La siguiente figura nos ayudará a razonar:
 
-```{r}
+```{r, fig.align="center"}
 pop<-data.frame(uspop) 
 pop$uspop <- as.numeric(pop$uspop)
 pop$year <- seq(from = 1790, to = 1970, by = 10)
@@ -231,7 +231,7 @@ summary(lm1)
 
 Este simple ajuste lineal de los datos parece funcionar bastante bien. Los valores p de las estimaciones son muy bajos, lo que indica una buena significación estadística. Asimismo, los valores de R-cuadrado son muy buenos. Sin embargo, los residuos muestran un grado de variabilidad bastante amplio, que llega hasta una diferencia de 36, como se demuestra en la siguiente figura:
 
-```{r}
+```{r, fig.align="center"}
 plot(y = pop$uspop, x = pop$year, main = "United States Population From 1790 to 1970",
 
 xlab = "Year", ylab = "Population")
@@ -261,14 +261,14 @@ $$y=b+m_1x_1^ 2 +m_2 x_1 $$
 
 Vamos a caminar lentamente a través de la salida de `summary()` primero. Mirar la salida de los residuos nos da un poco de alivio: ¡no hay residuos en el rango de 30!. Los residuos más pequeños son siempre mejores en términos de ajuste del modelo. La tabla de coeficientes tiene ahora tres entradas: una para el intercepto, una para el término de primer grado, y ahora una para el término de segundo grado. Cuando usó `poly(pop$year, 2)`, le indicó a R que quería un polinomio de los datos con el grado más alto siendo 2. Volviendo a la tabla de coeficientes, puede ver que todos los p-valores son estadísticamente significativos, lo que también es una buena indicación de que este es un modelo sólido que se ajusta a sus datos (ver Figura):
 
-```{r}
+```{r, fig.align="center"}
 plot(y =pop$uspop, x = pop$year, main = "United States Population From 1790 to 1970",xlab ="Year",ylab = "Population") 
 pop$lm2.predict = predict(lm2, newdata = pop);lines(sort(pop$year),fitted(lm2)[order(pop$year)], col = "blue",lty = 2)
 ```
 
 De la Figura anterior, parece bastante obvio que el polinomio de mayor grado (en este caso una ecuación cuadrática) se ajusta mejor a los datos. Es evidente que el uso de polinomios de mayor grado funciona mejor que los de menor grado, ¿verdad? ¿Qué ocurre si se ajusta un polinomio de tercer grado? ¿O algo más alto aún? Apuesto a que si se utiliza un polinomio de sexto grado tendrías un modelo muy preciso. Lo que salta inmediatamente es que el ajuste lineal simple que tenías antes se ajustaba a los datos lo mejor posible, pero el polinomio de segundo grado o más alto (es decir, un cuadrático simple) se ajusta mejor. Una mejor manera de distinguir la diferencia entre los ajustes polinómicos de orden superior es observar los gráficos de los residuos de cada modelo, que puede ver en la Figura que sigue.
 
-```{r}
+```{r, fig.align="center"}
 plot(resid(lm1),main ="Degree 1",xlab = "Sequential Year", 
 plot(resid(lm2),main = "Degree 2",xlab = "Sequential Year", 
 plot(resid(lm3),main = "Degree 3",xlab = "SequentialYear",
@@ -415,7 +415,7 @@ La *regresión logística* es un tipo particular de clasificación y relativamen
 
 Supongamos que se intenta diagnosticar a los pacientes para determinar si tienen un tumor maligno. Veamos el código y el gráfico resultante en la Figura 4-7:
 
-```{r pressure,echo=FALSE}
+```{r pressure,echo=FALSE, fig.align="center"}
 data <- data.frame(tumor.size <- c(1, 2, 3, 4, 5, 6, 7, 8, 9,
  20), malignant <- c(0, 0, 0, 0, 1, 1, 1, 1, 1, 1))
 tumor.lm<-lm(malignant ~ tumor.size, data = data)
@@ -439,7 +439,7 @@ Tenemos que replantearnos este enfoque. En lugar de ajustar una función matemá
 
 El límite de decisión es simplemente una línea en la arena de nuestros datos que dice "cualquier cosa en este lado se clasifica como $X$ y cualquier cosa del otro lado se clasifica como $Y$". La figura 4-8
 
-```{r presure,echo=FALSE}
+```{r presure,echo=FALSE, fig.align="center"}
 plot(y = data$malignant, x = data$tumor.size, main = "Tumor Malignancy by Size",
 ylab = "Type (0 = benign, 1 = cancerous)", xlab = "Tumor Size")
 abline(v = 4.5)
@@ -456,7 +456,7 @@ se basa en los fundamentos matemáticos de la función sigmoide. La función sig
 
 $$ h(x)=\frac{1}{1+e^{-x}}$$
 
-```{r }
+```{r, fig.align="center"}
   e<-exp(1)
 curve(1/(1 + e^-x), -10, 10, main = "The Sigmoid Function", xlab = "Input",
       ylab = "Probability")
@@ -498,7 +498,7 @@ Este fragmento de código toma las longitudes de los tumores de entrada, que van
 con la elección de los valores de los pesos y viendo cómo reaccionan los resultados, o a través de un algoritmo que le dé la respuesta. El código anterior proporciona la respuesta como resultado final. Se utilizan como pesos para la función $g(x)$ que se pasa a la sigmoidea. La tabla del código presenta la clasificación resultante de los datos como $s$. Un tumor de longitud $1$, cuando se pasa por la función de entrada $g(x)$ da un resultado de $-3,5$. Este valor, cuando se pasa a la función sigmoidea, da un resultado que es bastante cercano a cero. Esto significa que un tumor de longitud $1$ tiene una probabilidad muy baja
 de ser maligno, como se demuestra en la Figura 4-10:
 
-```{r}
+```{r, fig.align="center"}
 plot(y = s, x =lengths, pch = 1, main = "Entradas de la función sigmoide y redondeo
 Estimaciones",
 xlab = "Longitudes del tumor", ylab = "Probabilidad de tipificación de la clase 1")
@@ -526,7 +526,7 @@ Los mecanismos por los que funcionan los algoritmos de clasificación como la re
 
 Todo lo que hemos hecho hasta ahora en términos de clasificación ha sido sobre datos binarios: el tumor es maligno o benigno. La Figura 4-11 muestra otro ejemplo en el que determinamos las clases basándonos en la distribución de los datos:
 
-```{r}
+```{r, fig.align="center"}
 #figura 4-11
 plot(iris$Sepal.Length ~ iris$Sepal.Width, main = "Iris Flower Sepal Length vs Sepal Width",
 xlab = "Sepal Width", ylab = "Sepal Length")
@@ -575,7 +575,7 @@ int.iris
 
 A continuación, puede trazar esto sobre sus datos y ver cómo las clases se presentan, como se ilustra en la **Figura 4-12**
 
-```{r}
+```{r, fig.align="center"}
 #figura 4-12
 iris.binary$binary[iris.binary$binary == 0] <- 2
 plot(Sepal.Length ~ Sepal.Width, data = iris.binary, pch = (binary), main = "Iris Flower Sepal Length vs Sepal Width", xlab = "Sepal Width",
@@ -591,14 +591,14 @@ Ahora tiene una ecuación que ayuda a determinar cómo separar las especies de f
 
 Si quiere encontrar las divisiones en sus datos que definen múltiples clases y no sólo una clasificación binaria, necesita utilizar la clasificación multiclase. Este enfoque es ligeramente diferente, ya que básicamente está aplicando el mismo esquema de clasificación binaria que ha estado haciendo hasta ahora, pero está comparando la clase que le interesa frente a todo lo demás.
 
-```{r}
+```{r, fig.align="center"}
 multi <- data.frame(x1 = c(0.03, 0.24, 0.21, 0, 0, 0.23, 0.6, 0.64, 0.86, 0.77), x2 = c(0.07, 0.06, 0.19, 1.15, 0.95, 1,0.81, 0.64, 0.44, 0.74), lab = c(1, 1, 1, 2, 2, 2, 3, 3,3, 3))
 plot(x2 ~ x1, pch = lab, cex = 2, data = multi,main = "Multi-Class Classification",xlab = "x", ylab = "y")
 
 ```
 
 Hay tres clases distintas de datos, y usted quiere encontrar algún tipo de líneas que las dividan en sus propias categorías, de forma muy parecida a como lo hizo en el caso binario. En esencia, esto se reduce a nuestra simple prueba binaria, pero se cambia el grupo con el que se compara. Esto se llama una prueba "uno contra todos" o "uno contra muchos", en la que se prueban tres casos: triángulos contra resto, círculos contra resto y cruces contra resto, como se muestra en la Figura 4-14:
-````{r}
+````{r, fig.align="center"}
 par(mfrow = c(1, 3))
 multi$lab2 <- c(1, 1, 1, 4, 4, 4, 4, 4, 4, 4) 
 plot(x2 ~ x1, pch = lab2, cex = 2, data = multi,main = "Multi-Class Classification",xlab = "x", ylab = "y")
@@ -623,7 +623,7 @@ De nuevo, sin embargo, necesita hacer el cálculo especial para las pendientes e
 Observe que tiene dos líneas para separar las tres categorías:
 Dos líneas que separan tres clases de datos
 
-```{r}
+```{r, fig.align="center"}
 multi.int.1<- coef(multi.model)[1]/coef(multi.model)[3] 
 multi.slope.1<- -coef(multi.model)[5]/coef(multi.model)[3]
 
