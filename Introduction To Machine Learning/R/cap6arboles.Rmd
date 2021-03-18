@@ -87,7 +87,7 @@ Aunque la entropía de las hojas individuales es buena, el algoritmo determina l
 Gain = H(S)-\sum \frac{S_{v}}{S}H(S_{v})
 \end{equation}
 
-Donde $V$ son los posibles valores de las características, $S$ es el número del total de puntos en la hoja, y $S_{v}$ es el subconjunto para el cual tenemos nuestros posibles valores de la característica. Vamos a correr esto especificamente en la rama que se divide por la característica *Wind Spped*:
+Donde $V$ son los posibles valores de las características, $S$ es el número del total de puntos en la hoja, y $S_{v}$ es el subconjunto para el cual tenemos nuestros posibles valores de la característica. Vamos a correr esto especificamente en la rama que se divide por la característica *Wind Speed*:
 
 \begin{align}
 H(wind) &= -\frac{9}{14}\log_{2}\frac{9}{14}-\frac{5}{14}log_{2}\frac{5}{14}=0.94 \\
