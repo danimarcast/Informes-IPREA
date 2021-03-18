@@ -15,7 +15,7 @@ Un modelo es cualquier tipo de función que tenga poder predictivo.
 La siguiente gráfica, muestra la distribución de la eficiencia de combustible del vehículo basada en el conjunto de datos integrado de mtcars
 encontrado en R.
 
-```{r}
+```{r,fig.align="center"}
 data(mtcars)
 op <- par(mar = c(10, 4, 4, 2)) #margin formatting
 barplot(mtcars$mpg,names.arg = row.names(mtcars),las = 2, ylab = "Fuel
@@ -50,14 +50,14 @@ tabla_df <- data.frame(categorias, definiciones)
 knitr::kable(tabla_df)
 ```
 Tenemos el siguiente gráfico:
-```{r}
+```{r, fig.align="center"}
 pairs(mtcars[1:7],lower.panel = NULL) #Pairs nos da diagramas de dispersión para cada par de variables
 ```
 
 Cabe resaltar que la variable dependiente viene dada por la caja con texto en la parte inferior de cada columna, mientras que la variable independiente vendrá dada por la caja con texto al inicio de cada fila.
 Note que en la fila de cyl ninguno de los gráficos se ve como una regresión simple.\n
 El objetivo ahora es ver si existe alguna relación cuantificable entre cada variable dependiente e independiente. Por tanto, se podrá hacer un análisis para cada combinación de variables, por ejemplo, centremonos en mpg en función de wt.
-```{r}
+```{r, fig.align="center"}
 plot(y = mtcars$mpg, x = mtcars$wt, xlab = "Vehicle Weight",
 ylab = "Vehicle Fuel Efficiency in Miles per Gallon")
 ```
@@ -185,9 +185,12 @@ que pueden ser utilizados por no expertos para interactuar con conjuntos de dato
 
 El entorno de desarrollo integrado más popular es sin duda Rstudio
 
-
+<center>
+  
 ![Figura 1-4. R Studio es un entorno de desarrollo integrado (IDE) gratuito para R que es
 muy estable y fácil de usar para los nuevos en el lenguaje](https://raw.githubusercontent.com/Semillero-IPREA/Informes-IPREA/main/imagenes/figura1-4.png?token=ASRWCNN6K2UBNS7EAUSRHDLAJQKOA)
+
+</center>
 
 El libro en el que nos estamos basando está hecho en R Markdown, un lenguaje ligero que puede convertir a todo tipo de formas para mostrar en la web o renderizar en archivos PDF. Es una excelente manera de compartir código mediante la publicación en la web o para redactar documentación profesional. 
 Algunos paquetes importantes de R y que es importante mencionar son `dplyr` para manipular datos de una manera intuitiva y `lubridate` que es una forma poderosa de realizar manipulaciones en formato de fecha y hora complicados datos.
@@ -239,7 +242,7 @@ Este conjunto de datos contiene datos sobre 32 autos de un número de 1974. Tene
 si el coche tiene una transmisión manual o automática.
 La siguiente gráfica muestra la eficencia de los autos (mpg) en función del tamaño de su motor o el volumen del motor en pulgadas cúbicas (disp).
 
-```{r}
+```{r, fig.align="center"}
 plot(y = mtcars$mpg, x = mtcars$disp, xlab = "Engine Size (cubic inches)",
 ylab = "Fuel Efficiency (Miles per Gallon)")
 ```
@@ -255,7 +258,7 @@ Podríamos recordar que el modelo de regresión es de la forma $y = mx + b$, don
 determinada a partir de una pendiente dada $m$,una intersección $b$ y datos $x$. El modelo lineal en
 este caso viene dado por los coeficientes que se acaban de calcular, por lo que el modelo se ve así:
 
-$\text{Fuel Efficiency} = –0.041 × \text{Engine Size} + 29.599$
+$$\text{Fuel Efficiency} = –0.041 × \text{Engine Size} + 29.599$$
 
 Con esto ya tenemos un modelo simple de aprendizaje automático, con lo cual podremos ingresar el tamaño de motor de cualquier auto y saber su eficencia, por ejemplo si tomamos un auto cuyo tamaño de motor es $200$ obtenemos lo siguiente:
 
@@ -316,7 +319,7 @@ El método de clasificación es menos común que el de regresión, en los ejerci
 
 En contraste con la regresión, se desea ver si unos puntos de datos es una categoria de algo no necesariamente númerico, veamos el siguiente ejemplo.
 
-```{r}
+```{r, fig.align="center"}
 plot(x = mtcars$mpg, y = mtcars$am, xlab = "Fuel Efficiency (Miles per Gallon)",
 ylab = "Vehicle Transmission Type (0 = Automatic, 1 = Manual)")
 ```
@@ -361,7 +364,7 @@ Este es un ecosistema de algoritmos que puede ser usado en casos supervisados y 
 Examinemos el conjunto de datos del iris observando el gráfico del ancho del pétalo como una función de
 longitud del pétalo.
 
-```{r}
+```{r, fig.align="center"}
 plot(x = iris$Petal.Length, y = iris$Petal.Width, xlab = "Petal Length",
 ylab = "Petal Width")
 ```
@@ -371,7 +374,7 @@ Nuestro proposito es agrupar los datos de la figura en 3 grupos, claramente hay 
 Este algoritmo funciona colocando primero una serie de puntos de prueba aleatorios en nuestros datos, en
 este caso, dos. Cada uno de nuestros puntos de datos reales se mide como una distancia de estos puntos de  prueba, y luego los puntos de prueba se mueven de una manera para minimizar esa distancia, como vemos en el siguiente gráfico.
 
-```{r}
+```{r, fig.align="center"}
 data = data.frame(iris$Petal.Length, iris$Petal.Width)
 iris.kmeans <- kmeans(data, 2)
 plot(x = iris$Petal.Length, y = iris$Petal.Width, pch = iris.kmeans$cluster, xlab = "Petal Length", ylab = "Petal Width")
@@ -384,7 +387,7 @@ Podemos ver cómo funciona el algoritmo dividiendo los datos en dos grupos princ
 
 Los puntos de la parte inferior izquierda son bastante distintos de los demás, pero hay un dato atípico. Usemos un clúster más, que se muestra en la siguiente figura, para ayudar a dar un poco más de sentido a los datos:
 
-```{r}
+```{r, fig.align="center"}
 iris.kmeans3 <- kmeans(data, 3)
 plot(x = iris$Petal.Length, y = iris$Petal.Width, pch = iris.kmeans3$cluster,
 xlab = "Petal Length", ylab = "Petal Width")
@@ -401,7 +404,7 @@ Cuando hay muy pocos clusters y los datos están underfit (subajuste), no hay un
 Continuando con el tema del aprendizaje supervisado, echemos un vistazo a la siguiente figura y
 comparemos este resultado con la respuesta real y veamos qué tan buena es realmente nuestra predicción:
 
-```{r}
+```{r, fig.align="center"}
 par(mfrow = c(1, 2))
 plot(x = iris$Petal.Length, y = iris$Petal.Width, pch = iris.kmeans3$cluster,
 xlab = "Petal Length", ylab = "Petal Width", main = "Model Output")
@@ -427,7 +430,7 @@ Algunos de estos métodos pueden utilizar la regresión para ayudar a informar u
 
 En pocas palabras, un árbol es un estructura que tiene nodos y aristas. Para un árbol de decisiones, en cada nodo podríamos tener un valor el cual dividimos para obtener una idea de los datos. La siguiente figura ilustra este hecho.
 
-```{r}
+```{r, message=FALSE, fig.align="center"}
 library(party)
 tree <- ctree(mpg ~ ., data = mtcars)
 plot(tree)
@@ -452,7 +455,7 @@ más de 2,32 toneladas) y luego ir a la izquierda al nodo 4 según los datos te�
 ¿Qué pasa si intenta utilizar esta nueva estructura de datos para la predicción? Lo primero que
 debería aparecer es que estamos mirando el conjunto de datos completo en lugar de solo los datos de entrenamiento. La siguiente figura muestra la estructura de árbol para los datos de entrenamiento primero:
 
-```{r}
+```{r, fig.align="center"}
 tree.train <- ctree(mpg ~ ., data = train)
 plot(tree.train)
 ```
@@ -479,7 +482,7 @@ En realidad lo que se hace es construir diferentes conjuntos de entrenamiento y 
 
 Los bosques aleatorios no son tan fáciles de describir en forma de modelo con una simple ecuación o un árbol simple con algunos nodos. Podemos hacer el entrenamiento habitual y prueba de datos continuos y discretos como ha visto con el método `ctree()`, para ver la diferencia, hagamos lo siguiente:
 
-```{r}
+```{r, fig.align="center"}
 library(randomForest)
 mtcars.rf <- randomForest(mpg ~ ., data = mtcars, ntree = 1000,
 keep.forest = FALSE, importance = FALSE)
@@ -513,7 +516,11 @@ $f(x)=\dfrac{1}{1+e^{-x}}$
 
 Entonces para valores negativos menores que $-5$, la función es $0$. Para valores positivos $x$ mayores que $5$, la función es $1$. Si tuviéramos un conjunto predefinido de pesos para cada nodo en la red neuronal, podríamos tener una imagen que se parece a la siguiente Figura.
 
+<center>
+
 ![Figura 2-10. Un ejemplo de red neuronal representada en un diagrama que se lee de izquierda a derecha](https://raw.githubusercontent.com/Semillero-IPREA/Informes-IPREA/main/imagenes/figura2-10.png?token=ASRWCNOQIQ5H6KLJTFDSBXTAJQKOK)
+
+</center>
 
 Comenzamos con las entradas $X1$, $X2$ y el nodo de polarización que es solo una constante aditiva. Calculamos todos estos en el círculo vacío, esto es un nodo de cálculo. El cálculo que realizamos es poner todas estas cosas en una función de activación, que casi siempre es una función sigmoide. La salida de la función sigmoide es el resultado de la red neuronal.
 
@@ -607,7 +614,7 @@ contra el cual comparamos para puntuar el modelo. Se realiza la evaluación y pu
 
 En este caso de clustering no supervisado los datos que tomamos no tienen ninguna etiqueta o categoría, esta clasificación la tendrá que hacer uno mismo.  Si genera datos aleatorios, realmente no sabe cómo se agruparán. En la siguiente figura podemos ver como se hace de forma usual el algoritmo de clustering usual `kmeans` para ver como deben ser clasificados  los datos.
 
-```{r}
+```{r, fig.align="center"}
 x <- rbind(matrix(rnorm(100, sd = 0.3), ncol = 2), matrix(rnorm(100,
 mean = 1, sd = 0.3), ncol = 2))
 colnames(x) <- c("x", "y")
@@ -621,7 +628,7 @@ Una distribución aleatoria de datos que queremos clasificar en dos grupos; caso
 Lo que hemos hecho aquí es generar un conjunto aleatorio de datos que se distribuye normalmente en dos grupos. En este caso, puede ser un poco más difícil ver dónde están las agrupaciones exactas, pero afortunadamente, como ilustra la siguiente figura, el algoritmo kmeans puede ayudar a designar
 qué puntos pertenecen a qué grupo:
 
-```{r}
+```{r, fig.align="center"}
 cl <- kmeans(x, 4)
 plot(x, pch = cl$cluster)
 
