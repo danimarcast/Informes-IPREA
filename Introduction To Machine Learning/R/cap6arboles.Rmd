@@ -79,7 +79,7 @@ H(cloudy) &=-\frac{4}{4}\log_{2}\frac{4}{4}-\frac{0}{4}\log_{2}\frac{0}{4}=0 \\
 H(sunny) & =-\frac{2}{5}\log_{2}\frac{2}{5}-\frac{3}{5}\log_{2}\frac{3}{5}=0.97 \\
 \end{align}
 
-Los valores que se obtienen para *Rainy* y *Sunny* ambos son 1. Esto significa que la muestra es lo mas impura que se puede obtener, y se requerirá más división, donde la muestra para *Cloudy* sea totalmente pura, y la entropía para esto será $0$. Nos estamos saliendo con la nuestra con un truco matemático en este caso, porque técnicamente hablando, el logaritmo de cero debe ser menos infinito, pero estamos "cancelando" esto multiplicando por cero de cualquier forma.
+Los valores que se obtienen para *Rainy* y *Sunny* ambos son 1. Esto significa que la muestra es lo mas impura que se puede obtener, y se requerirá más división; Por otro lado, la muestra para *Cloudy* es totalmente pura, ya que su entropía en este caso es $0$. Nos estamos saliendo con la nuestra con un truco matemático en este caso, porque técnicamente hablando, el logaritmo de cero debe ser menos infinito, pero estamos "cancelando" esto multiplicando por cero de cualquier forma.
 
 Aunque la entropía de las hojas individuales es buena, el algoritmo determina la característica más útil para dividir, primero encontrando las características con mayor *ganancia*. Ganancia es la medida de qué tan relevante es una característica en una escala de 0 (menos útil) a 1 (más útil) y está definida por
 
