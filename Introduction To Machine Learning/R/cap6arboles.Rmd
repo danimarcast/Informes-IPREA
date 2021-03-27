@@ -135,7 +135,7 @@ Podemos ver inmediatamente que los árboles dividen los datos en cajas, dado que
 
 </center>
 
-Sin embargo, los datos puede venir en diferentes formas y tamaños. Además, el conjunto de datos `iris` es una ejemplo de datos que no pueden ser separados solo en dos o tres cajas. A diferencia de otros algoritmos que pueden definir una línea donde los datos que están en un lado es una clase A y todos los datos del otro lado son la clase B, los algoritmos basados en árboles deben dibujar cajas para dividir los datos. Para aproximar una línea o una curva, necesita muchas cajas. Lo que esto significa para su árbol es que usted está agregando más y más ramas y aumentando la complejidad de este, como se representa en la *Figura 6-7*
+Sin embargo, los datos puede venir en diferentes formas y tamaños. Además, el conjunto de datos `iris` es un ejemplo de datos que no pueden ser separados solo en dos o tres cajas. A diferencia de otros algoritmos que pueden definir una línea donde los datos que están en un lado es una clase A y todos los datos del otro lado son la clase B, los algoritmos basados en árboles deben dibujar cajas para dividir los datos. Para aproximar una línea o una curva, necesita muchas cajas. Lo que esto significa para su árbol es que usted está agregando más y más ramas y aumentando la complejidad de este, como se representa en la *Figura 6-7*
 
 <center>
 
