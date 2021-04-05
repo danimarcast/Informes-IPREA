@@ -93,7 +93,7 @@ Donde $V$ son los posibles valores de las características, $S$ es el número de
 H(wind) &= -\frac{8}{13}\log_{2}\frac{8}{13}-\frac{5}{13}log_{2}\frac{5}{13}=0.96 \\
 H(low) &= -\frac{5}{7}\log_{2}\frac{5}{7}-\frac{2}{7}\log_{2}\frac{2}{7}=0.86 \\
 H(high) &= -\frac{3}{6}\log_{2}\frac{3}{6}-\frac{3}{6}\log_{2}\frac{3}{6}=1 \\
-Gain(Wind)&= 0.96-\frac{7}{13}* 0.86-\frac{6}{14}* 1 =0.068
+Gain(Wind)&= 0.96-\frac{7}{13}* 0.86-\frac{6}{13}* 1 =0.0349
 \end{align}
 
 Una manera fácil de hacer esto en R es usando la función `varImpPlot()` de la paquetería `caret`. Aunque esta función en específico usa una computación matemática ligeramente distinta que en *Gain*, el resultado es el mismo. Con esta gráfica podemos ver que *Sky Condition* es el factor más importante, seguido por *Humidity* y luego *Wind Speed*. Si se tiene un conjunto de datos con muchas más variables y quiere ver cuáles son las más imporantes para un algoritmo de árbol en particular, se puede usar la función `VarImpPlot()` para obtener una mirada rápida de cómo se divide el árbol de arriba hacia abajo 
