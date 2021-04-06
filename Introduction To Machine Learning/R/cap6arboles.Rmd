@@ -349,7 +349,7 @@ Los métodos basados en árboles con los que hemos trabajado hasta ahora han sid
 
 Cada árbol va a tener algún tipo de salida basada en la división de características en los datos, como hemos visto para los modelos basados en árboles hasta ahora. La diferencia es que tomamos los resultados de cada árbol y contamos cuál salida tiene la mayor cantidad de votos. La salida con más votos se convierte en la salida del bosque. En un ejemplo de clasificación, podríamos tener un grupo de árboles que se ve de la siguiente forma en la **Figura 6-17**
 
-![Figura 6-17. Un ejemplo de como funciona un modelo de bosque aleatorio](https://raw.githubusercontent.com/Semillero-IPREA/Informes-IPREA/main/imagenes/figura6-17.png?token=ASRWCNNFF5Q6CVPZ76Y6N4LAJQEGW)
+![Figura 6-17. Un ejemplo de como funciona un modelo de bosque aleatorio](https://github.com/Semillero-IPREA/Informes-IPREA/blob/main/imagenes/figura_617.png?raw=true){width="800px"}
 
 Tenemos tres árboles, cada uno con una salida de clase A o B. Note que los árboles tienen diferentes características en las que también podrían dividirse. Dado que estás construyendo los árboles desde subconjuntos aleatorios de tus datos iniciales, varios subconjuntos pueden tener diferentes divisiones de parámetros que otros subconjuntos.\
 
