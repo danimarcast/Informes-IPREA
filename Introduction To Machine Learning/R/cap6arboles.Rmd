@@ -24,12 +24,12 @@ Los árboles de inferencia condicional funcionan de manera similar pero con fund
 Empecemos por mirar un ejemplo de un conjunto de datos que describe mis carreras en bicicleta este año. Podríamos tener una variedad de parámetros relacionados con el clima. Si tuviera una muestra de datos lo suficientemente robusta y tuviera una carrera de ciclismo en la que conociera el pronóstico en un grado razonable, ¿debería esperar un buen o mal desempeño en mi carrera? La *tabla 6-1* enumera algunos factores climáticos diferentes y mi resultado de la correspondiente carrera.
 
 ```{r}
-Week = c(1,2,3,4,5,6,7,8,9,10,11,12,13);
-SkyCondition = c('cloudy','rainy','sunny','cloudy','cloudy','rainy','rainy','cloudy','sunny','sunny','rainy','sunny','sunny');
-WindSpeed = c('low','low','high','high','low','high','high','high','low','low','low','low','high');
-Humidity = c("high",'normal','normal','high','normal','high','normal','normal','high','normal','normal','high','high');
-GoodResults = c('yes','yes','yes','yes','yes','no','no','yes','no','yes','yes','no','no');
-Bikerace = data.frame(Week,SkyCondition,WindSpeed,Humidity,GoodResults)
+Semana = c(1,2,3,4,5,6,7,8,9,10,11,12,13);
+CondicionCielo = c('nublado','lluvioso','soleado','nublado','nublado','lluvioso','lluvioso','nublado','soleado','soleado','lluvioso','soleado','soleado');
+VelocidadViento = c('bajo','bajo','alto','alto','bajo','alto','alto','alto','bajo','bajo','bajo','bajo','alto');
+Humedad = c("alto",'normal','normal','alto','normal','alto','normal','normal','alto','normal','normal','alto','alto');
+BuenosResultados = c('si','si','si','si','si','no','no','si','no','si','si','no','no');
+Bikerace = data.frame(Semana,CondicionCielo,VelocidadViento,Humedad,BuenosResultados)
 knitr::kable(Bikerace)
 ```
 
@@ -46,37 +46,38 @@ La *figura 6-1* muestra tres hojas en el árbol: Condición del cielo = lluvioso
 
 La pureza se define como la cantidad de ejemplos positivos o negativos que tiene que está tratando de modelar (en este caso, Resultado) de los valores totales en la tabla. Se desea continuar dividiendo el árbol hasta que tenga tantas hojas puras como sea posible. 
 
-![*Figura 6-1.Un ejemplo de cómo un árbol de decisión crea subconjuntos de los datos.*](https://raw.githubusercontent.com/Semillero-IPREA/Informes-IPREA/main/imagenes/Figura6-1.PNG)
+![*Figura 6-1.Un ejemplo de cómo un árbol de decisión crea subconjuntos de los datos.*](https://github.com/Semillero-IPREA/Informes-IPREA/blob/main/imagenes/figu_61.png?raw=true){width="800px"}
 
-Como se muestra en la *Figura 6-2*, al dividir aún más los subconjuntos lluviosos y soleados (en este caso por viento y humedad, respectivamente), ahora hay cinco puntos terminales del árbol. Se puede leer este árbol como una proposición "si-entonces", comenzando por la parte superior. Primero, revisemos lo que se quiere predecir. Queremos saber si voy a tener un buen resultado en carrera si llueve, hay poca velocidad del viento y mucha humedad. Comenzamos en la parte superior del árbol y nos movemos a lo largo del camino de  `Sky Condition = rain`, y luego dividimos cuando la velocidad del viento sea baja. Eso nos lleva a un depósito que tiene todos sus datos con un buen estado de resultado de sí. Entonces, según las condiciones que deseaba predecir inicialmente, ¡Mediante el uso de un árbol de decisiones, puede predecir que tendré un buen resultado en la carrera!
+Como se muestra en la *Figura 6-2*, al dividir aún más los subconjuntos lluviosos y soleados (en este caso por viento y humedad, respectivamente), ahora hay cinco puntos terminales del árbol. Se puede leer este árbol como una proposición "si-entonces", comenzando por la parte superior. Primero, revisemos lo que se quiere predecir. Queremos saber si voy a tener un buen resultado en carrera si llueve, hay poca velocidad del viento y mucha humedad. Comenzamos en la parte superior del árbol y nos movemos a lo largo del camino de  `CondicionCielo = lluvioso`, y luego dividimos cuando la velocidad del viento sea baja. Eso nos lleva a un depósito que tiene todos sus datos con un buen estado de resultado de sí. Entonces, según las condiciones que deseaba predecir inicialmente, ¡Mediante el uso de un árbol de decisiones, puede predecir que tendré un buen resultado en la carrera!
 
 
 
-![*Figura 6-2. Este árbol de decisión se divide aún más en función de la velocidad del viento o la humedad para crear más tablas (u hojas) resultantes en los extremos del árbol que tienen una mayor pureza que antes.*](https://raw.githubusercontent.com/Semillero-IPREA/Informes-IPREA/main/imagenes/Figura6-2.PNG?token=ASRWCNMCEYQEBCH25745CS3AJ7MHQ) 
+![*Figura 6-2. Este árbol de decisión se divide aún más en función de la velocidad del viento o la humedad para crear más tablas (u hojas) resultantes en los extremos del árbol que tienen una mayor pureza que antes.*](https://github.com/Semillero-IPREA/Informes-IPREA/blob/main/imagenes/figu_62.png?raw=true){width="800px"}
 
 ## <span style="color:#3c55b3">Decidir cómo dividir árboles</span>
 
 En el ejemplo anterior, comenzamos con un conjunto de datos que se quería modelar. Había muchas características y una respuesta contra la que deseaba modelar (resultado en función de las condiciones del cielo, la velocidad del viento y la humedad). Se comenzó observando cómo funciona un árbol de decisiones al dividirse en la variable *Condición del cielo*, pero ¿por qué elegimos ese? ¿Por qué no elegir una variable diferente para dividir en su lugar? Un árbol de decisiones quiere maximizar la *"pureza"* de sus divisiones. Echemos un vistazo a la *Figura 6-3*, que revisa el primer corte del árbol de antes.
 
-![*Figura 6-3. Al dividir árboles de decisión, desea que los nodos de hojas sean lo más puros posible (en este caso, Cloudy es la hoja más pura, seguida de Sunny, luego Rainy; necesitamos dividir nuestro árbol más en los nodos de hojas impuras para obtener un mejor árbol modelo)*](https://raw.githubusercontent.com/Semillero-IPREA/Informes-IPREA/main/imagenes/Figura6-3.PNG?token=ASRWCNI5EAKXWIA3274BTBLAJ7MJS)
+![*Figura 6-3. Al dividir árboles de decisión, desea que los nodos de hojas sean lo más puros posible (en este caso, Cloudy es la hoja más pura, seguida de Sunny, luego Rainy; necesitamos dividir nuestro árbol más en los nodos de hojas impuras para obtener un mejor árbol modelo)*](https://github.com/Semillero-IPREA/Informes-IPREA/blob/main/imagenes/figu_63.png?raw=true){width="800px"}
 
 En la *Figura 6-3*, la hoja nublada comienza al 100%. Eso significa que el 100% de los datos en ese corte son todos datos "sí" y no requiere más subconjuntos para llegar a un conjunto puro. Sin embargo, las hojas soleadas y lluviosas requieren dividirse. Comencemos por comparar con un árbol basado en la variable *Velocidad del viento*, como se muestra en la *Figura 6-4*.
 
-![*Figura 6-4. Dividir los datos en función de la velocidad del viento no produce resultados con un factor de pureza elevado*](https://raw.githubusercontent.com/Semillero-IPREA/Informes-IPREA/main/imagenes/Figura6-4.PNG?token=ASRWCNM3VJWM3NTJCMRODPTAJ7MLC)
+![*Figura 6-4. Dividir los datos en función de la velocidad del viento no produce resultados con un factor de pureza elevado*](https://github.com/Semillero-IPREA/Informes-IPREA/blob/main/imagenes/figu_64.png?raw=true){width="800px"}
 
-En la *Figura 6-4*, ninguna de las hojas iniciales es pura. Una hoja es 75% pura y la otra 50% pura. Ambas requieren divisiones adicionales de los datos. Se desea lograr la mayor pureza posible, y tener un árbol con una hoja que sea 100% pura. Prácticamente todos los algoritmos de árboles de decisión tendrán esta funcionalidad incorporada, por lo que nunca tendrás que preocuparte por determinar una división inicial de los datos, pero es una buena práctica saber cómo funcionan los mecanismos subyacentes de los algoritmos del árbol.
+En la *Figura 6-4*, ninguna de las hojas iniciales es pura. Una hoja es 71.43% pura y la otra 50% pura. Ambas requieren divisiones adicionales de los datos. Se desea lograr la mayor pureza posible, y tener un árbol con una hoja que sea 100% pura. Prácticamente todos los algoritmos de árboles de decisión tendrán esta funcionalidad incorporada, por lo que nunca tendrás que preocuparte por determinar una división inicial de los datos, pero es una buena práctica saber cómo funcionan los mecanismos subyacentes de los algoritmos del árbol.
 
 ### <span style="color:#3c55b3">Entropía de árboles y ganancia de información</span> 
 
 Una manera más matemática de representar la pureza de cada subconjunto de un árbol es midiendo su entropía. Esta es una manera de medir que tan probable es obtener un elemento positivo si se selecciona al azar de un subconjunto particular. La ecuación de la entropía es la siguiente
 
 $$H(S)= -p_{+}\log_{2}p_{+}-p_{-}\log_{2}p_{-}$$
+
 Esta ecuación afirma que la entropía para un conjunto de datos dados es una función de cuantos casos postivos $p_{+}$ tenemos en total, multiplicando el logaritmo (note la base dos) del mismo valor, y restandole el número de casos negativos de la misma forma. Recordemos que un caso positivo será un "si", y un resultado negativo será un "no" en el ejemplo original de datos en la tabla 6-1. Una buena manera de ver esta acción es considerar como se puede aplicar al árbol que usted dividió en *Sky Condition´*
 
 \begin{align}
-H(rainy) &=-\frac{2}{4}\log_{2}\frac{2}{4}-\frac{2}{4}\log_{2}\frac{2}{4}=1 \\
-H(cloudy) &=-\frac{4}{4}\log_{2}\frac{4}{4}-\frac{0}{4}\log_{2}\frac{0}{4}=0 \\
-H(sunny) & =-\frac{2}{5}\log_{2}\frac{2}{5}-\frac{3}{5}\log_{2}\frac{3}{5}=0.97 \\
+H(Lluvioso) &=-\frac{2}{4}\log_{2}\frac{2}{4}-\frac{2}{4}\log_{2}\frac{2}{4}=1 \\
+H(Nublado) &=-\frac{4}{4}\log_{2}\frac{4}{4}-\frac{0}{4}\log_{2}\frac{0}{4}=0 \\
+H(Soleado) & =-\frac{2}{5}\log_{2}\frac{2}{5}-\frac{3}{5}\log_{2}\frac{3}{5}=0.97 \\
 \end{align}
 
 Los valores que se obtienen para *Rainy* y *Sunny* ambos son 1. Esto significa que la muestra es lo mas impura que se puede obtener, y se requerirá más división; Por otro lado, la muestra para *Cloudy* es totalmente pura, ya que su entropía en este caso es $0$. Nos estamos saliendo con la nuestra con un truco matemático en este caso, porque técnicamente hablando, el logaritmo de cero debe ser menos infinito, pero estamos "cancelando" esto multiplicando por cero de cualquier forma.
@@ -90,10 +91,10 @@ Gain = H(S)-\sum \frac{S_{v}}{S}H(S_{v})
 Donde $V$ son los posibles valores de las características, $S$ es el número del total de puntos en la hoja, y $S_{v}$ es el subconjunto para el cual tenemos nuestros posibles valores de la característica. Vamos a correr esto especificamente en la rama que se divide por la característica *Wind Speed*:
 
 \begin{align}
-H(wind) &= -\frac{8}{13}\log_{2}\frac{8}{13}-\frac{5}{13}log_{2}\frac{5}{13}=0.96 \\
-H(low) &= -\frac{5}{7}\log_{2}\frac{5}{7}-\frac{2}{7}\log_{2}\frac{2}{7}=0.86 \\
-H(high) &= -\frac{3}{6}\log_{2}\frac{3}{6}-\frac{3}{6}\log_{2}\frac{3}{6}=1 \\
-Gain(Wind)&= 0.96-\frac{7}{13}* 0.86-\frac{6}{13}* 1 =0.0349
+H(Vel. Viento) &= -\frac{8}{13}\log_{2}\frac{8}{13}-\frac{5}{13}log_{2}\frac{5}{13}=0.96 \\
+H(Bajo) &= -\frac{5}{7}\log_{2}\frac{5}{7}-\frac{2}{7}\log_{2}\frac{2}{7}=0.86 \\
+H(Alto) &= -\frac{3}{6}\log_{2}\frac{3}{6}-\frac{3}{6}\log_{2}\frac{3}{6}=1 \\
+Gain(Vel. Viento)&= 0.96-\frac{7}{13} \cdot 0.86-\frac{6}{13} \cdot 1 = 0.0349
 \end{align}
 
 Una manera fácil de hacer esto en R es usando la función `varImpPlot()` de la paquetería `caret`. Aunque esta función en específico usa una computación matemática ligeramente distinta que en *Gain*, el resultado es el mismo. Con esta gráfica podemos ver que *Sky Condition* es el factor más importante, seguido por *Humidity* y luego *Wind Speed*. Si se tiene un conjunto de datos con muchas más variables y quiere ver cuáles son las más imporantes para un algoritmo de árbol en particular, se puede usar la función `VarImpPlot()` para obtener una mirada rápida de cómo se divide el árbol de arriba hacia abajo 
@@ -101,7 +102,7 @@ Una manera fácil de hacer esto en R es usando la función `varImpPlot()` de la 
 ```{r, message=FALSE, fig.align="center"}
 library(caret)
 library(randomForest)
-fit <- randomForest(factor(GoodResults) ~ ., data = Bikerace[2:5])
+fit <- randomForest(factor(BuenosResultados) ~ ., data = Bikerace[2:5])
 varImpPlot(fit)
 ```
 
