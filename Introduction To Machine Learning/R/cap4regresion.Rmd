@@ -54,21 +54,21 @@ summary(model)
 La función `summary()` nos da una gran cantidad de información de este modelo lineal. Por lo general, el único número que la gente suele mirar para obtener una evaluación de precisión de  referencia es el valor del R-cuadrado múltiple. Cuanto más cerca esté ese valor de $1$, más preciso será el modelo de regresión lineal. Sin embargo, hay muchos otros términos en este resultado, así que repasemos cada elemento para obtener una
 comprensión sólida:
 
-* ***Call***: 
+***Call:***
 Esto muestra la forma de la función que usamos. En este caso, usamos una variable de respuesta, `mpg`, en función de una variable dependiente, `disp`, estas son llamadas desde el conjunto de datos `mtcars`.
 
-* ***Residuals***:
+***Residuals:***
 Los residuos son una medida de la distancia vertical desde cada punto de datos hasta la línea ajustada en nuestro modelo. En este caso,  tenemos estadísticas resumidas para todas las distancias verticales de todos nuestros puntos en relación con la línea ajustada. Cuanto menor sea este valor, mejor será el ajuste
 
-* ***Coefficients***:
+***Coefficients:***
 Estas son las estimaciones de los coeficientes de nuestra ecuación lineal. 
 Nuestra ecuación en este caso sería $y = -0.04 x + 29.59$
 
-* ***Std. Error***: Con dichos coeficientes vienen las estimaciones de error dadas por Std. Parte del error de la tabla de coeficientes. En realidad, nuestra ecuación sería algo así como $y =  (- 0. 04 ± 0. 005) x + (29. 59 ± 1. 23)$
+* ***Std. Error:*** Con dichos coeficientes vienen las estimaciones de error dadas por Std. Parte del error de la tabla de coeficientes. En realidad, nuestra ecuación sería algo así como $y =  (- 0. 04 ± 0. 005) x + (29. 59 ± 1. 23)$
 
-* ***t-value***: Esta es la medida de la diferencia relativa a la variación en  nuestros datos. Este valor está vinculado con el p-valor,  los cuales  se utilizan con mucha más frecuencia.
+* ***t-value:*** Esta es la medida de la diferencia relativa a la variación en  nuestros datos. Este valor está vinculado con el p-valor,  los cuales  se utilizan con mucha más frecuencia.
 
-* ***p-value***: Los p-valores son evaluaciones estadísticas de importancia. El funcionamiento de los p-valores son más complicados que eso, pero para nuestros propósitos  si el p-valor es menor que $0.05$ significa que podemos tomar el número como estadísticamente significativo. Si el número en cuestión tiene un p-valor mayor que $0.05$, deberíamos decir que este no es estadísticamente significativo. Los valores con asterisco se definen a continuación.
+* ***p-value:*** Los p-valores son evaluaciones estadísticas de importancia. El funcionamiento de los p-valores son más complicados que eso, pero para nuestros propósitos  si el p-valor es menor que $0.05$ significa que podemos tomar el número como estadísticamente significativo. Si el número en cuestión tiene un p-valor mayor que $0.05$, deberíamos decir que este no es estadísticamente significativo. Los valores con asterisco se definen a continuación.
 
 ***Error estándar residual***\
 Esta estimación de error se refiere a la desviación estándar de nuestros datos.
