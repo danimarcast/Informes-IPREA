@@ -1,0 +1,473 @@
+---
+title: <span style="color:#3c55b3">7. Otros métodos avanzados</span>
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+<div style="text-align: justify">
+
+En este capítulo, mostramos una variedad de modelos de aprendizaje automático disponibles en R. Aunque los algoritmos principales que hemos cubierto hasta ahora realmente constituyen la mayoría de los modelos, quería incluir este capítulo para proporcionar una visión completa de los ecosistemas de aprendizaje automático en R.
+
+Cubrimos la clasificación nuevamente, pero a través de la lente de las estadísticas bayesianas. Este es un campo popular de estadística y ayuda a realizar la transición a otros algoritmos que dependen de una lógica similar. También cubrimos el análisis de componentes principales, las máquinas de vectores de soporte y los algoritmos de k vecinos más cercanos (kNN).
+
+## <span style="color:#3c55b3">Clasificador bayesiano ingenuo (Naive Bayes)</span>
+
+Una forma de hacer la clasificación con probabilidades es mediante el uso de estadísticas bayesianas. Aunque este campo puede tener una curva de aprendizaje bastante pronunciada, esencialmente estamos tratando de responder a la pregunta: "Según las características que tenemos, ¿Cuál es la probabilidad de que el resultado sea de clase *X*?" Un clasificador de Bayes ingenuo responde a esta pregunta con una suposición bastante audaz: todos los predictores que tenemos son independientes entre sí. La ventaja de hacer esto es que reducimos drásticamente la complejidad de los cálculos que estamos haciendo.
+
+### <span style="color:#3c55b3">Estadística bayesiana en pocas palabras</span>
+
+La estadística bayesiana se basa mucho en la multiplicación de probabilidades. Hagamos una introducción rápida a esto para que esté al día. Supongamos que conduzco mi bicicleta en 100 carreras y gano 54 de ellas. La probabilidad de que gane una carrera, por lo tanto, es solo el número de veces que he ganado dividido por el número total de ocurrencias:
+
+Sea $A$ := Ganar una carrera 
+
+$$P(A)=\frac{54}{100}=54\%$$
+
+Ahora hablemos de probabilidades independientes y dependientes. 
+Suponga que quiere conocer la probabilidad de que gane una carrera de bicicletas y la probabilidad de que
+ocurra una tormenta de viento en Marte. Estas dos cosas son completamente independientes entre sí, dado que una tormenta de viento en Marte no podría afectar el resultado de mi carrera de bicicletas, y viceversa. Supongamos que la probabilidad de una tormenta de viento en Marte es del 20\%. Para calcular la probabilidad de que sucedan estos dos eventos independientes, simplemente multiplicamos sus probabilidades:
+
+Sea $B$ := Ocurra una tormenta de viento en Marte
+
+$$P(A \cap B)=P(A) \times P(B) = 54\% \times 20\%= 10.8\%$$
+
+Sin embargo, si dos eventos son dependientes, debemos utilizar un enfoque ligeramente diferente. Considere una baraja de cartas. La probabilidad de que elija cualquier reina es 4/52. Sin embargo, la probabilidad de que elija cualquier as después de elegir una reina cambiará ya que estos son eventos dependientes, esto se debe a que acabamos de quitar una carta del mazo; por tanto, la probabilidad ahora sería 4/51. La probabilidad se definiría así:
+
+Sea $C:=\text{Sacar una reina}$ y $D:=\text{Sacar un As}$
+
+$$P(C \cap D) = P(C) \times P(D|C)=\frac{4}{52} \times \frac{4}{51}=0.6\%$$
+
+Ahora supongamos que tenemos dos eventos $A,B$ independientes entre sí, entonces:
+
+$$P(A\cap B)=P(A) \times P(B|A)$$ 
+
+
+(vale aclarar que $P(A\cap B)=P(B) \times P(A|B)$ )
+
+$$\frac{P(A\cap B)}{P(A)}=P(B|A)$$
+
+$$\frac{P(B)\times P(A|B)}{P(A)}=P(B|A)$$
+
+Lo que tenemos como resultado es la fórmula (ingenua) de Bayes. Esto nos dice las probabilidades condicionales de un evento dada la información previa o evidencia sobre las características que estamos viendo. La parte “ingenua” proviene de la audaz afirmación de que las características que nos interesan son independientes.
+
+
+
+
+### <span style="color:#3c55b3">Aplicaciones de Naive Bayes</span>
+
+Apliquemos esta formulación matemática en R. La libreria `e1071` tiene una función útil, `naiveBayes()`, para construir modelos de este tipo. Al utilizar la regla de Bayes antes mencionada, puede calcular las probabilidades condicionales de una clase categórica. En este caso, utilicemos datos relacionados con los estudios sobre el cáncer de mama realizados por los hospitales y clínicas de la Universidad de Wisconsin. Hay once características en este conjunto de datos, una columna es un valor de ID que no es de interés y otra columna es la designación de clase para el tipo de célula, donde 2 representa una célula benigna y 4 representa una célula maligna. El resto de las características pertenecen a la célula que se está estudiando, con características como "Uniformity of Cell Size" y "Single Epithelial Cell Size". Aquí está el código:
+
+
+```{r, fig.align="center",message=FALSE}
+##https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/
+library(readr)
+library("e1071")
+breast_cancer <- data.frame(read_csv("C:\\Users\\ASUS\\Downloads\\breast_cancer (1).txt", col_names = FALSE))
+names(breast_cancer) <- c("SampleCodeNumber", "Class","ClumpThickness",
+     "UniformityofCellSize", "UniformityofCellShape", "MarginalAdhesion","SingleEpithelialCellSize", "BareNuclei", "BlandChromatin",
+     "NormalNucleoli", "Mitoses")
+breast_cancer <- data.frame(sapply(breast_cancer, as.factor)) 
+breast_cancer_features <- breast_cancer[, 2:5] 
+nb.model <- naiveBayes(Class ~ ., data = breast_cancer_features)
+print(nb.model)
+```
+
+
+Lo que ve como resultado del modelo son un par de propiedades diferentes. Primero, están las "probabilidades a priori", que le informan sobre la distribución de clases para la variable dependiente que está modelando.
+
+La segunda propiedad son las "probabilidades condicionales". Esta es una lista de tablas, una para cada variable predictora. Observe en la imagen que he truncado la salida para que no domine totalmente la página con la salida de todas las diferentes funciones. Sin embargo, para cada una de las características, existen probabilidades de condición para los factores de la respuesta. Entonces, por ejemplo, la característica `ClumpThickness` tiene 10 variables categóricas diferentes. Para cada una de esas categorías, existen las probabilidades condicionales de la clase de célula (Class). Recuerde que la clase 2 significa que la célula es benigna, mientras que la clase 4 indica que es maligna. Esta salida tabular le permite ver con gran detalle las probabilidades ingenuas de Bayes para cada una de las características.
+
+El siguiente paso lógico es utilizar este algoritmo con fines predictivos. Puede hacer esto siguiendo el método de dividir los datos en conjuntos de entrenamiento y prueba, modelar el conjunto de entrenamiento y luego generar una matriz de confusión de la variable predictora:
+
+```{r, fig.align="center"}
+
+breast_cancer_complete <-
+breast_cancer_features[complete.cases(breast_cancer_features),
+]  
+breast_cancer_complete$Class <- as.factor(breast_cancer_complete$Class) 
+data.samples <- sample(1:nrow(breast_cancer_complete), 
+nrow(breast_cancer_complete) *
+0.7, replace = FALSE)
+training.data <- breast_cancer_complete[data.samples, ] 
+test.data <- breast_cancer_complete[-data.samples, ] 
+nb.model <- naiveBayes(Class ~ ., data = training.data) 
+prediction.nb <- predict(nb.model, test.data) 
+knitr::kable(table(test.data$Class, prediction.nb))
+```
+
+Aquí, vemos que el modelo de Bayes ingenuo parece funcionar bastante bien, dándonos un resultado con bastante precisión.
+
+## <span style="color:#3c55b3">Análisis de componentes principales</span>
+
+El análisis de componentes principales (PCA) es un tipo de aprendizaje automático que utilizamos como un paso de preprocesamiento de datos para ayudar con algunos enfoques diferentes. En muchos casos de análisis de datos, es posible que tengamos características que están altamente correlacionadas entre sí. Si tuviéramos que explotar esos datos con un modelo de aprendizaje automático sin ningún tipo de selección de características de antemano, podríamos obtener algún error adicional en nuestro procedimiento de modelado porque algunas de nuestras características podrían estar altamente correlacionadas.
+
+Por ejemplo, si desea modelar las ventas de un producto en función de la econometría de varios países, es posible que tenga algunos datos que podrían tener características como `País`, `Año`, `Población`, `Porcentaje de usuarios de banda ancha`, `Porcentaje de población urbana`, `PIB`, `PIB`, `Per cápita`, `índice de pobreza`, `esperanza de vida`, etc. En teoría, algunos de estos valores son muy dependientes entre sí, como el `PIB` y la `Población`. En algunos casos, pueden estar correlacionados linealmente. La función del PCA en este caso sería reducir esa correlación entre el `PIB` y la `Población` a una sola característica, que sería la relación funcional entre los dos.
+
+Si se tuviera algún tipo de conjunto de datos de ejemplo con 30 o 40 características, pero la mayoría de ellas estuvieran altamente correlacionadas entre sí, podría ejecutar un algoritmo PCA en él y reducir los datos a solo dos características. Esto reduciría considerablemente la complejidad computacional del conjunto de datos.
+
+Con PCA, podría reducir sus datos de algo que se parece a esto
+
+```{r, fig.align="center"}
+head(mtcars)
+```
+
+a una forma más compacta, como esta:
+
+```{r, fig.align="center"}
+
+##                            x1      x2
+## Mazda RX4          1.5560338 2.391719
+## Mazda RX4 Wag      1.1481763 2.754611
+## Datsun 710         0.2824424 2.622031
+## Hornet 4 Drive     3.7019535 2.806743
+## Hornet Sportabout  3.2649748 2.483172
+## Valiant 4.1630202  2.048424  2.045424
+
+
+```
+
+
+La utilidad de PCA para la reducción de la dimensionalidad de los datos puede resultar útil para visualizar patrones de datos complejos. Los cerebros humanos son muy adeptos a la visualización y podemos leer muy bien un gráfico bidimensional. El cerebro puede discernir fácilmente las visualizaciones tridimensionales en la vida real, pero son un poco más difíciles de ver en la pantalla de una computadora, que en sí mismo es un plano bidimensional. PCA puede ayudarnos a tomar datos complejos y visualizarlos en un espacio más compacto para facilitar el análisis. La *Figura 7-1* muestra un ejemplo de datos que podrían usar un tratamiento de PCA:
+
+```{r, fig.align="center",  fig.cap ="*Figura 7-1. Una selección de variables del conjunto de datos mtcars; puede utilizar PCA para encontrar correlaciones en los datos y reducir la complejidad del conjunto de datos para su procesamiento futuro.*"}
+pairs(mtcars[, 1:7], lower.panel = NULL)
+
+```
+
+
+En el conjunto de datos `mtcars`, hay una buena cantidad de características, algunas de las cuales parecen estar correlacionadas entre sí. Una buena práctica general antes de aplicar PCA es echar un vistazo a sus datos y ver si realmente hay valores que parezcan estar correlacionados.
+
+A primera vista de los datos, parece que hay algunos valores bien correlacionados, y muchos de ellos corresponden a la variable de peso del vehículo, `wt`. Veamos cómo puede reducir algunas de las dependencias de estas variables y generar una imagen más simplificada de los datos.
+
+En R, hay dos funciones que son bastante similares en términos de sintaxis que pueden hacer PCA de forma inmediata: `princomp` y `prcomp`. Uno de sus primeros objetivos es visualizar qué parte de la varianza puede explicar un cierto número de componentes principales en sus datos. La función `princomp` tiene una funcionalidad incorporada simple que se presta mejor para trazar, así que usemos `princomp` por el momento:
+
+```{r, fig.align="center"}
+pca <- princomp(mtcars, scores = TRUE, cor = TRUE)
+
+```
+
+
+Puede utilizar el argumento `score` para almacenar algunos datos utilizados para puntuar cada componente, a lo que llegaremos en un segundo. El argumento `cor` se alinea con el uso de una matriz de correlación para los cálculos en lugar de una matriz de covarianza. Las diferencias son sutiles y dependen un poco de los datos o del tipo de cálculo que desea hacer, pero nos adentraremos demasiado en las malas hierbas estadísticas que avanzan por ese camino, así que use la matriz de correlación por ahora.
+
+Echemos un vistazo a la salida del objeto PCA:
+
+```{r, fig.align="center"}
+summary(pca)
+
+```
+
+Esta tabla muestra la importancia de cada uno de estos misteriosos componentes principales para el conjunto de datos general. La fila que más interesa es la proporción de varianza (`Proportion of varianze`), que indica qué cantidad de datos se explican por el PCA. Los componentes siempre se ordenan según su importancia, por lo que los componentes más importantes siempre serán los primeros. En el resultado anterior, puede ver que el componente 1 explica el 60\% de los datos, con el componente 2 llegando al 24\% y luego una fuerte caída para el resto. Si desea representar estos datos gráficamente, siga el ejemplo que se muestra en la *Figura 7-2*:
+
+```{r, fig.align="center", fig.cap="*Figura 7-2. Las variaciones de nuestros diversos componentes; esta es una forma más visual de ver en que medida nuestros componentes principales explican los datos.*"}
+plot(pca)
+
+```
+
+Este gráfico muestra la importancia de los componentes e indica que el primer componente principal explica una gran parte de los datos. Combinado con el componente 2, esto explica más del 84% del conjunto de datos con solo dos características en lugar de las 11 con las que comenzamos. Pero estos componentes principales suenan algo misteriosos. ¿Qué significa el componente 1 para nosotros como seres humanos o tomadores de decisiones? En PCA, puede mirar las  cargas `loadings` para ver qué cantidad de cada variable está contenida en cada componente que está viendo:
+
+```{r, fig.align="center"}
+pca$loadings[, 1:5]
+
+```
+Estos valores son las correlaciones entre el componente principal y las características con las que comenzó. Este ejemplo muestra solo los primeros cinco componentes principales para ahorrar espacio, ya que los componentes del 6 al 9 no son realmente tan útiles de todos modos.
+
+Cuanto más cercano esté el número de correlación a 1 o –1 para cada combinación de componente y característica, más importante será esa característica para ese componente. Veamos el componente 1. Este tiene un equilibrio de todas las características iniciales, siendo `mpg` el valor positivo dominante y `cyl` el valor negativo dominante. El componente 2 está dominado principalmente por las variables `qsec`, `gear` y `am`, en ese orden. Lo mismo para el resto de componentes.
+
+Entonces, si tuviera que atribuir algún tipo de relación entre los componentes y las características,
+diría que:
+
+* El componente 1 se correlaciona con `mpg` y `cyl`
+* El componente 2 está correlacionado con `qsec`, `gear` y `am`
+
+Si desea ver este tipo de información en un sentido más gráfico, puede trazar las puntuaciones de los componentes principales, como se muestra en la *Figura 7-3*:
+
+```{r, fig.align="center", fig.cap="*Figura 7-3. Una gráfica de los datos en función de los dos componentes principales; Los automóviles en esta parcela que están agrupados son muy similares entre sí en función de los componentes utilizados para describirlos.*"}
+scores.df <- data.frame(pca$scores) 
+scores.df$car <- row.names(scores.df) 
+plot(x = scores.df$Comp.1, y = scores.df$Comp.2, xlab = "Comp1 (mpg,cyl)",
+ylab = "Comp2 (qsec, gear, am)")
+text(scores.df$Comp.1, scores.df$Comp.2, labels = scores.df$car,
+cex = 0.7, pos = 3)
+
+```
+
+
+Lo que hemos hecho en esta última etapa es mostrar que muchos de los datos se pueden comprimir en dos componentes principales: uno tiene que ver principalmente con las variables `mpg` y `cyl`, y el otro es una combinación de las variables `qsec`, `gear` y `am`. En la *Figura 7-3*, puede ver que algunos autos caen en ciertos extremos del espectro en comparación con otros y pueden estar muy bien relacionados entre sí en función de muchos factores que se comprimen en solo una o dos variables.
+
+Observe que los valores de los ejes aquí también son algo diferentes a los valores de la variable inicial. Esto se debe a que algunos algoritmos de PCA tienen técnicas de escalamiento de características integradas que aseguran que todas las variables estén dentro del mismo rango entre sí por el bien de la comparación; de lo contrario, si tuviera una variable (como el peso del vehículo) que podría ser cientos o miles de veces más grande que otra variable (como el número de cilindros), el análisis podría ser muy engañoso. La función `princomp` por ejemplo, es una función de escalado integrada, sin embargo, otros algoritmos de PCA en R pueden requerir que habilite explícitamente el escalado.
+
+### <span style="color:#3c55b3">Análisis discriminante lineal</span>
+
+PCA busca encontrar una serie de vectores que describan la varianza en los datos. Por ejemplo, puede tener algunos datos descritos por dos características, $X$ y $Y$, que puede trazar. Puede encontrar un par de vectores que expliquen cuánto varían los datos en una dirección en comparación con una dirección ortogonal al primer vector, como se muestra en la *Figura 7-4*.
+
+<center>
+![*Figura 7-4. Los componentes principales describen la varianza en los datos; aquí, hay dos vectores componentes, siendo el componente principal el que describe el más largo de los dos ejes en los datos*](https://raw.githubusercontent.com/Semillero-IPREA/Informes-IPREA/main/imagenes/figura7-4.PNG){width="700"}
+
+</center>
+
+Los conjuntos de datos más complejos pueden tener más características y más vectores, pero la idea es la misma. Por el contrario, una forma diferente de realizar el análisis de características sería con el análisis discriminante lineal (LDA). En este caso, es posible que tenga algunos datos que sean una función de $X$ y $Y$, nuevamente, pero esta vez, como muestra la *Figura 7-5*, desea clasificarlos en diferentes grupos en función de cómo se distribuyen sus datos.
+
+<center>
+
+
+![*Figura 7-5. LDA describe la mejor manera de separar los datos según las clases; aquí, hay un conjunto de datos que se divide efectivamente por las distribuciones a lo largo del eje X y el eje Y, respectivamente*](https://raw.githubusercontent.com/Semillero-IPREA/Informes-IPREA/main/imagenes/figura7-5.PNG){width="700"}
+
+</center>
+
+En la *Figura 7-5*, hay algunos datos que están graficados, pero separados en dos clases. Los datos *+* tienen una distribución a lo largo del eje X, al igual que los otros datos. Sin embargo, los datos del eje Y no se distinguen por clases diferentes en este caso.
+
+Veamos cómo se comparan estos dos modelos entre sí para fines de clasificación ejecutándolos con el conjunto de datos de `iris`. Comience usando PCA en los datos de `iris` y luego observe la varianza total atribuida a cada uno de los componentes, comenzando con el uso de la función `prcomp`:
+
+```{r, fig.align="center"}
+iris.pca <- prcomp(iris[, -5], center = T, scale. = T) 
+
+iris.pca$sdev^2/sum(iris.pca$sdev^2) 
+```
+
+Aquí, PCA le informa que tiene básicamente dos componentes principales. El componente 1 describe la varianza del 72% de los datos y el componente 2 describe el 23% de la varianza de los datos. Estos dos vectores combinados describen un 95% de los datos; puede ignorar los otros componentes por el momento (para mantener las visualizaciones un poco más simples).
+
+Antes de saltar de lleno a LDA, primero debemos establecer cuál es la distribución previa de datos. Tocamos brevemente este tema mientras discutíamos las estadísticas bayesianas.
+
+Para una actualización rápida, la distribución anterior es la distribución de los datos que está modelando, esencialmente. En algunos casos, no sabe con certeza cuál podría ser la distribución, pero sí en este caso. Debido a que está ejecutando un modelo de clasificación en los datos de `iris`, el único tipo de datos de clase que tiene, está relacionado con la variable `Species`. Puede ver cuál sería la distribución anterior en este caso mirando esa variable específica:
+
+```{r, fig.align="center"}
+table(iris$Species)
+
+```
+
+Aquí, hay tres clases, todas igualmente distribuidas. La distribución previa en este caso sería (1/3) para cada clase. Debe especificar esto como un vector al entrenar el modelo LDA. Después de hacer eso, puede ver cómo se compara el corolario de LDA con los componentes principales haciendo básicamente el mismo enfoque matemático:
+
+```{r, fig.align="center"}
+data("iris")
+library(MASS)
+iris.lda <- lda(Species ~ ., data = iris, prior = c(1/3, 1/3,
+1/3))
+iris.lda$svd^2/sum(iris.lda$svd^2)
+
+```
+
+El resultado aquí muestra que hay dos valores singulares, el primero que describe un enorme 99% de la varianza en los datos y el otro un mínimo 0,8%. Si desea ver cómo los dos discriminantes lineales están relacionados con cada una de las características en los datos de una manera similar a cómo lo hizo con PCA, simplemente puede llamar las escalas:
+
+```{r, fig.align="center"}
+iris.lda$scaling
+
+```
+
+A continuación, puede hacer la matriz de confusión habitual para ver qué tan bien se compara el modelo LDA con las respuestas reales para los datos de las especies de `iris`:
+
+```{r, fig.align="center"}
+iris.lda.prediction <- predict(iris.lda, newdata = iris)
+table(iris.lda.prediction$class, iris$Species)
+
+```
+El modelo LDA parece ser bastante acertado. A continuación, puede intentar visualizar la diferencia entre PCA y LDA. Recordemos las formulaciones con estos dos modelos. PCA es un modelo de aprendizaje no supervisado. No le decimos al PCA que intente separar nuestros datos en función de una determinada clase, simplemente se ocupa de sus asuntos al hacerlo. Por otro lado, con LDA, necesitamos especificar una clase por la cual separarnos y, por lo tanto, este último es un modelo supervisado.
+
+Los modelos supervisados tenderán a ser mejores para separar datos que los no supervisados. La *Figura 7-6* prueba esto comparando las salidas de PCA con LDA:
+
+```{r, fig.align="center", fig.cap="*Figura 7-6. Una comparación de PCA versus LDA*"}
+
+combined <- data.frame(Species = iris[, "Species"], pca = iris.pca$x,
+lda = iris.lda.prediction$x)
+library(ggplot2)
+library(gridExtra)
+lda.plot <- ggplot(combined) + geom_point(aes(lda.LD1, lda.LD2,
+shape = Species)) + scale_shape_manual(values = c(0, 1, 2))
+pca.plot <- ggplot(combined) + geom_point(aes(pca.PC1, pca.PC2,
+shape = Species)) + scale_shape_manual(values = c(0, 1, 2))
+grid.arrange(pca.plot, lda.plot)
+
+```
+
+
+La *Figura 7-6* muestra PCA en la parte superior y LDA en la parte inferior. El objetivo aquí es ver qué tan bien separa sus datos cada modelo. En PCA, observe que los datos de `setosa` están bien separados del resto, pero los datos `versicolor` parecen tener cierta superposición con los datos de `virginica` alrededor del pca. Con un rango de PC1 = 1,5. En comparación, LDA también separa bien los datos de `setosa`, pero parece que funciona mejor para mantener la superposición entre `versicolor` y `virginica` al mínimo.
+
+
+## <span style="color:#3c55b3">Máquinas de vectores de soporte (SVM)</span>
+
+
+Las máquinas de vectores de soporte, más conocidas como SVMs, son un modelo de aprendizaje automático que usa hiperplanos para separar datos. Para separar nuestros datos debemos encontrar un tipo de plano (o una recta en el caso de datos en dos dimensiones) que los separe y use vectores para maximizar la separación de nuestros datos, como se ilustra en la *Figura 7-7*
+
+<center>
+![*Figura 7-7.Una ilustración de un algoritmo simple de SVM aplicado en algunos datos de ejemplo; un plano, o una recta, separa nuestros datos con dos vectores de soporte, consiguiendo la máxima separación entre los dos tipos de datos y el plano en sí*](https://raw.githubusercontent.com/Semillero-IPREA/Informes-IPREA/main/imagenes/Fig7-7.png){width="700"}
+
+
+
+
+</center>
+\
+
+Las SVM trabajan empleando algo llamado "el truco del kernel". Este es un método por el cual podemos transformar los datos que estamos tratando de separar por medio de una frontera de decisión, y luego aplicamos una separación por medio de un hiperplano en los datos transformados.\
+
+Por ejemplo, si tuviéramos datos en una diana, con un pequeño grupo rodeado de un anillo, estos serían imposibles de separar utilizando una línea o una superficie bidimensional.
+
+En cambio, si transformamos los datos en coordenadas polares, podemos separar los datos fácilmente mediante un hiperplano. En la práctica, esta transformación es más o menos una caja negra porque el espacio de características puede ser bastante complejo, pero la idea sigue siendo la misma.
+
+En la *Figura 7-8*, puede ver los vectores que particionan los datos, en este caso, usemos de nuevo el conjunto de datos `iris`
+
+
+```{r, fig.align="center", fig.cap="*Figura 7-8. Un gráfico de los datos con la clasificación SVM y los límites superpuestos*"}
+library("e1071")
+s <- sample(150, 100)
+col <- c("Petal.Length", "Petal.Width", "Species")
+iris_train <- iris[s, col] 
+iris_test <- iris[-s, col] 
+svmfit <- svm(Species ~ ., data = iris_train, kernel = "linear", 
+cost = 0.1, scale = FALSE)
+plot(svmfit, iris_train[, col])
+```
+
+Lo que vemos como resultado en la *Figura 7-8* son los límites de clasificación indicados por el modelo de entrenamiento SVM. Está bastante claro que los datos de la esquina inferior izquierda se separaron del resto y se clasificaron adecuadamente, sin embargo, podría ser necesario algún ajuste para separar los datos `versicolor` y `virginica`. Las X del gráfico muestran los vectores de soporte y las bandas muestran las regiones de clase predichas.
+
+Puede usar la función `tune` para ayudar a encontrar el mejor parámetro de coste para un ajuste optimo con las SVM:
+
+```{r}
+tuned <- tune(svm, Species ~ ., data = iris_train, kernel = "linear",
+ranges = list(cost = c(0.001, 0.01, 0.1, 1, 10, 100)))
+summary(tuned)
+```
+
+Esto nos revela que el mejor parámetro cost es 1, con esto ya puede volver a correr el modelo, como se muestra en la *Figura 7-9*:
+\
+
+```{r, fig.align="center", fig.cap="*Figura 7-9. Una SVM ajustada tendrá un ajuste ligeramente mejor a los datos que una no ajustada*"}
+svmfit <- svm(Species ~ ., data = iris_train, kernel = "linear",
+cost = 1, scale = FALSE)
+plot(svmfit, iris_train[, col])
+```
+
+También puede utilizar la clasificación SVM para los límites de decisión no lineales. En ejemplos anteriores, ha visto cómo algunos algoritmos de aprendizaje automático separan los datos basándose sólo en líneas rectas. Por ejemplo, la regresión logística separa los datos utilizando líneas rectas, y los árboles de decisión también separan los datos utilizando líneas rectas, pero dibujando cajas alrededor de los datos.
+
+
+Las SVM son útiles porque pueden emplear un método conocido como el "truco del kernel" para transformar nuestros datos y luego realizar operaciones sobre esos datos transformados. Lo que esto nos permite es dibujar curvas alrededor de nuestros datos en lugar de sólo líneas rectas para obtener un mejor ajuste. El inconveniente, sin embargo, viene con la explicabilidad del modelo. Al igual que las redes neuronales, podemos pasar los datos a través de una SVM y obtener algún resultado significativo, pero la descripción del proceso por el que se producen las transformaciones puede quedar a menudo bajo el apelativo de operación de "caja negra".
+
+Veamos la *Figura 7-10*, que muestra cómo se pueden emplear las SVM para dibujar límites de decisión curvos para clasificación. Para este ejemplo, carguemos el conjunto de datos `cats` del paquete MASS:
+
+```{r, fig.align="center", fig.cap="*Figura 7-10. Un gráfico de los datos de los gatos del paquete MASS*"}
+library("MASS")
+plot(x = cats$Hwt, y = cats$Bwt, pch = as.numeric(cats$Sex))
+```
+
+A primera vista, parece que será difícil separar los gatos (triángulos) de las gatas (círculos). Lo que puede hacer aquí es ejecutar otro modelo SVM en estos datos; esto producirá automáticamente un límite no lineal que puede ver en la *Figura 7-11*:
+
+```{r}
+data(cats)
+model <- svm(Sex ~ ., data = cats)
+print(model)
+```
+
+```{r}
+summary(model)
+```
+
+```{r,  fig.align="center", fig.cap="*Figura 7-11. Los mismos datos de gatos con la superposición SVM; la SVM es capaz de dibujar un límite de clasificación no lineal en los datos, lo que puede ser útil cuando se trata de crear límites de decisión para los datos que se superponen*"}
+plot(model, cats)
+```
+
+Por último, puede utilizar la clasificación SVM en la matriz de confusión estándar para ver qué tan preciso es nuestro modelo:
+
+```{r}
+data.samples <- sample(1:nrow(cats), nrow(cats) * 0.7, replace = FALSE)
+training.data <- cats[data.samples, ]
+test.data <- cats[-data.samples, ]
+svm.cats <- svm(Sex ~ ., data = training.data)
+prediction.svm <- predict(svm.cats, test.data[, -1], type = "class")
+table(test.data[, 1], prediction.svm)
+```
+
+
+## <span style="color:#3c55b3">K vecinos más cercanos (kNN)</span>
+
+Los K-vecinos más cercanos (kNN) es un algoritmo de aprendizaje automático bastante simple que básicamente toma todos los casos disponibles en nuestros datos y predice un objetivo basado en algún tipo de medida de similitud, en este caso, la distancia.
+
+Podemos mostrar cómo funciona esto con un breve ejemplo. Suponga que estoy tratando de encontrar una bicicleta nueva que me quede bien. Las bicicletas vienen en una variedad de configuraciones que pueden tener medidas muy diferentes según el tamaño y el estilo de ajuste que desee. Puede haber 10 o más medidas diferentes que describan el ajuste perfecto para mí. Sin embargo, ir a una tienda de bicicletas y probar diferentes bicicletas lleva tiempo y prefiero usar un enfoque matemático para adivinar qué tan bien encajará una bicicleta sin salir de mi casa.
+
+La *Tabla 7-1* recopila cinco medidas para un grupo de bicicletas de los manuales en línea.
+
+<center>
+![*Tabla 7-1. Cinco medidas para una serie de bicicletas.*](https://raw.githubusercontent.com/Semillero-IPREA/Informes-IPREA/main/imagenes/tabla7-1.PNG){width="700"}
+
+</center>
+
+Un paso muy importante es normalizar primero los valores de la tabla. Hacerlo coloca todas las medidas en igualdad de condiciones, por lo que si algunas medidas son muy pequeñas, no se olvidan entre las medidas de mayor magnitud. Hacemos esto simplemente dividiendo cada medida por la suma de las medidas en esa columna, como se ilustra en la *Tabla 7-2.*
+
+<center>
+![*Tabla 7-2. Medidas de bicicleta normalizadas.*](https://raw.githubusercontent.com/Semillero-IPREA/Informes-IPREA/main/imagenes/tabla7-2.PNG){width="700"}
+
+</center>
+
+Para cada bicicleta, hay medidas de `m1` a `m5`, un campo de ajuste `fit` calculado y una distancia simple `dist`. En la medición de distancia kNN, utilizamos la medición de distancia euclidiana dada por lo siguiente:
+
+$$d=\sqrt{m1^2+m2^2+m3^2+\ldots}$$
+
+Esto define el campo de `fit`  en la *Tabla 7-2*. Una vez que tenemos la medida del ajuste de la bicicleta, podemos ver qué tan lejos de nuestra base de referencia están las bicicletas, simplemente tomando la diferencia entre la bicicleta que nos interesa y la de referencia. Este es el valor de `dist` en la tabla. Luego ordenamos por `dist` y el valor más cercano a la línea de base es el vecino más cercano. Si quisiéramos k bicicletas  que fueran las que mejor se ajustaran, tal vez las tres mejores, por ejemplo, simplemente tomaríamos las tres bicicletas más cercanas a la base de referencia.
+
+Para un ejemplo de regresión, el algoritmo kNN calcula el promedio de nuestra variable de respuesta para los kNN. Los fundamentos matemáticos son los mismos para la clasificación, pero modificados ligeramente porque son categóricos en lugar de valores numéricos.
+
+Veamos un ejemplo simple del conjunto de datos `mtcars`:
+```{r}
+knn.ex <- head(mtcars[, 1:3])
+knn.ex
+```
+
+Si quisiera encontrar los kNN de la última fila para el vehículo "Valiant" según la característica `mpg`, encontraría cuál es la distancia euclidiana entre todas las demás características :
+
+```{r}
+knn.ex$dist <- sqrt((knn.ex$cyl - 6)^2 + (knn.ex$disp - 225)^2)
+knn.ex[order(knn.ex[, 4]), ]
+```
+Este ejemplo toma los valores del vehículo "Valiant" que no sean la característica que está tratando de modelar y calcula la distancia euclidiana entre ellos. Este ejemplo muestra los cinco puntos de datos de los vecinos más cercanos según las características seleccionadas.
+
+### <span style="color:#3c55b3">Regresión usando kNN</span>
+
+La *Figura 7-12* muestra la ejecución de un modelo de regresión con el algoritmo kNN:
+
+```{r,fig.align='center',fig.cap="*Figura 7-12. Un gráfico de la estimación del error para los datos de la regresión kNN*"}
+library(caret)
+data(BloodBrain)
+inTrain <- createDataPartition(logBBB, p = 0.8)[[1]]
+trainX <- bbbDescr[inTrain, ]
+trainY <- logBBB[inTrain]
+testX <- bbbDescr[-inTrain, ]
+testY <- logBBB[-inTrain]
+fit <- knnreg(trainX, trainY, k = 3)
+plot(testY, predict(fit, testX))
+```
+
+
+
+### <span style="color:#3c55b3">Clasificación usando kNN</span>
+
+El uso de kNN para realizar la clasificación funciona similar a como lo hace con regresión. En este ejemplo, utilizará el sistema de modelado de clasificación del paquete `RWeka`. Debido a que esta suite de modelado se basa en Java, necesita saber qué versión de R está ejecutando; puede verificar esto llamando a la siguiente función:
+
+```{r}
+Sys.getenv("R_ARCH")
+```
+Este ejemplo indica una arquitectura de 64 bits de R.
+
+![](https://raw.githubusercontent.com/Semillero-IPREA/Informes-IPREA/main/imagenes/Nota-general.PNG){width="100"} También estoy usando la versión de 64 bits de Java, pero la mayoría de las veces, los problemas con este sistema provienen de una falta de coincidencia de tipos en la que, por ejemplo, es posible que tenga una versión de R de 64 bits instalada pero una de 32 bits versión de Java.
+
+En cualquier caso, ejecutar el sistema de clasificación de `RWeka` es bastante simple y produce algunos buenos resultados:
+
+```{r,message=FALSE}
+library(RWeka)
+iris <- read.arff(system.file("arff", "iris.arff", package = "RWeka"))
+classifier <- IBk(class ~ ., data = iris)
+summary(classifier)
+```
+
+Con el paquete `RWeka`, puede obtener todo tipo de información valiosa  sin tener que calcularla explícitamente a mano. En este caso, hay muchos tipos de errores, así como una útil matriz de confusión, todo con solo llamar al resumen (`summary()`) del objeto.
+
+También puede evaluar el objeto `RWeka` resultante con una útil validación cruzada incorporada, como lo indica la opción `numFolds`:
+
+```{r}
+classifier <- IBk(class ~ ., data = iris, control = Weka_control(K = 20,
+X = TRUE))
+evaluate_Weka_classifier(classifier, numFolds = 10)
+```
+
+
+
+
+
